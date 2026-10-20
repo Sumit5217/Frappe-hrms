@@ -7,7 +7,7 @@ import path from "path";
 export default defineConfig({
 	plugins: [vue()],
 	server: {
-		port: 8081,
+		port: 8086,
 		proxy: getProxyOptions(),
 		allowedHosts: true,
 	},
@@ -56,7 +56,7 @@ function getProxyOptions() {
 function getCommonSiteConfig() {
 	let currentDir = path.resolve(".");
 	// traverse up till we find frappe-bench with sites directory
-	while (currentDir !== "/") {
+	while (currentDir !== "/" && path.resolve(currentDir, "..") !== currentDir) {
 		if (
 			fs.existsSync(path.join(currentDir, "sites")) &&
 			fs.existsSync(path.join(currentDir, "apps"))

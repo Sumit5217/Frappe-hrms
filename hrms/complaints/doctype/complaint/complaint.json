@@ -1,0 +1,374 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "autoname": "CMP-.YYYY.-.#####",
+ "creation": "2024-10-01 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "title",
+  "complaint_type",
+  "complaint_category",
+  "priority",
+  "column_break_1",
+  "date",
+  "status",
+  "source",
+  "assigned_to",
+  "section_break_complainant",
+  "complainant_section_note",
+  "b2c_section",
+  "customer_name",
+  "phone",
+  "email",
+  "address",
+  "column_break_b2c",
+  "b2b_section",
+  "company_name",
+  "gst_number",
+  "contact_person",
+  "contact_phone",
+  "contact_email",
+  "contract_id",
+  "section_break_details",
+  "description",
+  "attachments",
+  "section_break_sla",
+  "sla_deadline",
+  "column_break_sla",
+  "escalated_on",
+  "section_break_resolution",
+  "resolved_by",
+  "resolution_date",
+  "column_break_resolution",
+  "resolution_note",
+  "section_break_internal",
+  "internal_notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Complaint Title",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "complaint_type",
+   "fieldtype": "Select",
+   "label": "Complaint Type",
+   "options": "Billing Issue\nSupply Problem\nQuality Issue\nService Complaint\nPolicy Violation\nDelivery Issue\nTechnical Issue\nOther",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "complaint_category",
+   "fieldtype": "Select",
+   "label": "Category",
+   "options": "B2C\nB2B\nInternal",
+   "reqd": 1,
+   "default": "B2C",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "priority",
+   "fieldtype": "Select",
+   "label": "Priority",
+   "options": "Low\nMedium\nHigh\nCritical",
+   "reqd": 1,
+   "default": "Medium",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "label": "Date",
+   "reqd": 1,
+   "default": "Today",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Open\nIn Review\nEscalated\nResolved\nClosed\nRejected",
+   "reqd": 1,
+   "default": "Open",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "source",
+   "fieldtype": "Select",
+   "label": "Source",
+   "options": "Web Form\nAPI\nWalk-in\nPhone\nEmail\nFrappe Desk",
+   "default": "Frappe Desk"
+  },
+  {
+   "fieldname": "assigned_to",
+   "fieldtype": "Link",
+   "label": "Assigned To",
+   "options": "User",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "section_break_complainant",
+   "fieldtype": "Section Break",
+   "label": "Complainant Details"
+  },
+  {
+   "fieldname": "complainant_section_note",
+   "fieldtype": "HTML",
+   "label": "Note",
+   "options": "<div class='alert alert-info'>Fill B2C fields for individual customers. Fill B2B fields for companies/businesses.</div>"
+  },
+  {
+   "fieldname": "b2c_section",
+   "fieldtype": "Section Break",
+   "label": "B2C — Individual Customer",
+   "depends_on": "eval: doc.complaint_category == 'B2C'"
+  },
+  {
+   "fieldname": "customer_name",
+   "fieldtype": "Data",
+   "label": "Customer Name",
+   "mandatory_depends_on": "eval: doc.complaint_category == 'B2C'",
+   "depends_on": "eval: doc.complaint_category == 'B2C'"
+  },
+  {
+   "fieldname": "phone",
+   "fieldtype": "Data",
+   "label": "Phone Number",
+   "depends_on": "eval: doc.complaint_category == 'B2C'"
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Email",
+   "options": "Email",
+   "depends_on": "eval: doc.complaint_category == 'B2C'"
+  },
+  {
+   "fieldname": "address",
+   "fieldtype": "Small Text",
+   "label": "Address",
+   "depends_on": "eval: doc.complaint_category == 'B2C'"
+  },
+  {
+   "fieldname": "column_break_b2c",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "b2b_section",
+   "fieldtype": "Section Break",
+   "label": "B2B — Company / Business",
+   "depends_on": "eval: doc.complaint_category == 'B2B'"
+  },
+  {
+   "fieldname": "company_name",
+   "fieldtype": "Data",
+   "label": "Company Name",
+   "mandatory_depends_on": "eval: doc.complaint_category == 'B2B'",
+   "depends_on": "eval: doc.complaint_category == 'B2B'"
+  },
+  {
+   "fieldname": "gst_number",
+   "fieldtype": "Data",
+   "label": "GST Number",
+   "depends_on": "eval: doc.complaint_category == 'B2B'"
+  },
+  {
+   "fieldname": "contact_person",
+   "fieldtype": "Data",
+   "label": "Contact Person",
+   "depends_on": "eval: doc.complaint_category == 'B2B'"
+  },
+  {
+   "fieldname": "contact_phone",
+   "fieldtype": "Data",
+   "label": "Contact Phone",
+   "depends_on": "eval: doc.complaint_category == 'B2B'"
+  },
+  {
+   "fieldname": "contact_email",
+   "fieldtype": "Data",
+   "label": "Contact Email",
+   "options": "Email",
+   "depends_on": "eval: doc.complaint_category == 'B2B'"
+  },
+  {
+   "fieldname": "contract_id",
+   "fieldtype": "Data",
+   "label": "Contract / Agreement ID",
+   "depends_on": "eval: doc.complaint_category == 'B2B'"
+  },
+  {
+   "fieldname": "section_break_details",
+   "fieldtype": "Section Break",
+   "label": "Complaint Description"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Long Text",
+   "label": "Description",
+   "reqd": 1
+  },
+  {
+   "fieldname": "attachments",
+   "fieldtype": "Attach",
+   "label": "Attachment (Photo / Document)"
+  },
+  {
+   "fieldname": "section_break_sla",
+   "fieldtype": "Section Break",
+   "label": "SLA & Escalation"
+  },
+  {
+   "fieldname": "sla_deadline",
+   "fieldtype": "Date",
+   "label": "SLA Deadline",
+   "read_only": 1,
+   "description": "Auto-calculated: B2B = 2 days, B2C = 5 days"
+  },
+  {
+   "fieldname": "column_break_sla",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "escalated_on",
+   "fieldtype": "Datetime",
+   "label": "Escalated On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_resolution",
+   "fieldtype": "Section Break",
+   "label": "Resolution Details"
+  },
+  {
+   "fieldname": "resolved_by",
+   "fieldtype": "Link",
+   "label": "Resolved By",
+   "options": "User",
+   "read_only": 1,
+   "mandatory_depends_on": "eval: doc.status == 'Resolved'"
+  },
+  {
+   "fieldname": "resolution_date",
+   "fieldtype": "Datetime",
+   "label": "Resolution Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_resolution",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "resolution_note",
+   "fieldtype": "Long Text",
+   "label": "Resolution Note",
+   "mandatory_depends_on": "eval: doc.status == 'Resolved'"
+  },
+  {
+   "fieldname": "section_break_internal",
+   "fieldtype": "Section Break",
+   "label": "Internal Notes (Admin Only)"
+  },
+  {
+   "fieldname": "internal_notes",
+   "fieldtype": "Long Text",
+   "label": "Internal Notes",
+   "description": "Not visible to customer — for admin use only"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-10-01 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Complaints",
+ "name": "Complaint",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "HR Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "HR User",
+   "share": 1,
+   "write": 1,
+   "delete": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Employee",
+   "share": 1,
+   "write": 1,
+   "delete": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "All",
+   "share": 1,
+   "write": 1,
+   "delete": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Guest",
+   "share": 1,
+   "write": 1,
+   "delete": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "search_fields": "title,complaint_type,status,customer_name,company_name",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "title",
+ "track_changes": 1
+}

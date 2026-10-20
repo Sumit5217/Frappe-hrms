@@ -1,0 +1,94 @@
+{
+ "app": "hrms",
+ "charts": [],
+ "content": "[{\"id\":\"card_total\",\"type\":\"header\",\"data\":{\"text\":\"Complaints Overview\",\"level\":3}},{\"id\":\"link_all\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"All Complaints\"}}]",
+ "creation": "2026-10-01 12:00:00.000000",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "message-circle-warning",
+ "idx": 0,
+ "is_hidden": 0,
+ "label": "Complaints",
+ "links": [],
+ "modified": "2026-10-01 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Complaints",
+ "name": "Complaints",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 10.0,
+ "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "format": "{} Complaints",
+   "label": "All Complaints",
+   "link_to": "Complaint",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Red",
+   "doc_view": "List",
+   "format": "{} Open",
+   "label": "Open Complaints",
+   "link_to": "Complaint",
+   "stats_filter": "[[\"Complaint\",\"status\",\"=\",\"Open\"]]",
+   "type": "DocType"
+  },
+  {
+   "color": "Blue",
+   "doc_view": "List",
+   "format": "{} B2B",
+   "label": "B2B Complaints",
+   "link_to": "Complaint",
+   "stats_filter": "[[\"Complaint\",\"complaint_category\",\"=\",\"B2B\"]]",
+   "type": "DocType"
+  },
+  {
+   "color": "Green",
+   "doc_view": "List",
+   "format": "{} B2C",
+   "label": "B2C Complaints",
+   "link_to": "Complaint",
+   "stats_filter": "[[\"Complaint\",\"complaint_category\",\"=\",\"B2C\"]]",
+   "type": "DocType"
+  }
+ ],
+ "sidebar_items": [
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "house",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Home",
+   "link_to": "Complaints",
+   "link_type": "Workspace",
+   "open_in_new_tab": 0,
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "triangle-alert",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "All Complaints",
+   "link_to": "Complaint",
+   "link_type": "DocType",
+   "open_in_new_tab": 0,
+   "show_arrow": 0,
+   "type": "Link"
+  }
+ ],
+ "title": "Complaints"
+}

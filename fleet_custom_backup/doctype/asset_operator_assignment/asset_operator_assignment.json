@@ -1,0 +1,147 @@
+{
+  "actions": [],
+  "autoname": "format:AOA-{equipment}-{#####}",
+  "creation": "2026-09-18 12:47:00.000000",
+  "doctype": "DocType",
+  "engine": "InnoDB",
+  "field_order": [
+    "equipment",
+    "equipment_name",
+    "day_operator",
+    "day_supervisor",
+    "column_break_1",
+    "night_operator",
+    "night_supervisor",
+    "section_break_period",
+    "effective_from",
+    "effective_to",
+    "is_active",
+    "status",
+    "reassignment_reason"
+  ],
+  "fields": [
+    {
+      "fieldname": "equipment",
+      "fieldtype": "Link",
+      "in_list_view": 1,
+      "in_standard_filter": 1,
+      "label": "Equipment / Machine",
+      "options": "Fleet Equipment",
+      "reqd": 1
+    },
+    {
+      "fetch_from": "equipment.number_plate",
+      "fieldname": "equipment_name",
+      "fieldtype": "Data",
+      "in_list_view": 1,
+      "label": "Number Plate",
+      "read_only": 1
+    },
+    {
+      "fieldname": "day_operator",
+      "fieldtype": "Data",
+      "in_list_view": 1,
+      "in_standard_filter": 1,
+      "label": "Day Operator / Driver"
+    },
+    {
+      "fieldname": "day_supervisor",
+      "fieldtype": "Data",
+      "in_list_view": 1,
+      "label": "Day Supervisor"
+    },
+    {
+      "fieldname": "column_break_1",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "night_operator",
+      "fieldtype": "Data",
+      "label": "Night Operator / Driver"
+    },
+    {
+      "fieldname": "night_supervisor",
+      "fieldtype": "Data",
+      "label": "Night Supervisor"
+    },
+    {
+      "fieldname": "section_break_period",
+      "fieldtype": "Section Break",
+      "label": "Assignment Status & Validity"
+    },
+    {
+      "default": "Today",
+      "fieldname": "effective_from",
+      "fieldtype": "Date",
+      "in_list_view": 1,
+      "label": "Effective From",
+      "reqd": 1
+    },
+    {
+      "fieldname": "effective_to",
+      "fieldtype": "Date",
+      "label": "Effective To"
+    },
+    {
+      "default": "1",
+      "fieldname": "is_active",
+      "fieldtype": "Check",
+      "in_list_view": 1,
+      "in_standard_filter": 1,
+      "label": "Is Active Assignment"
+    },
+    {
+      "default": "Active",
+      "fieldname": "status",
+      "fieldtype": "Select",
+      "label": "Status",
+      "options": "Active\nReassigned\nRelieved\nTemporary"
+    },
+    {
+      "fieldname": "reassignment_reason",
+      "fieldtype": "Small Text",
+      "label": "Reassignment Reason / Remark"
+    }
+  ],
+  "links": [],
+  "modified": "2026-09-18 12:47:00.000000",
+  "modified_by": "Administrator",
+  "module": "Fleet",
+  "name": "Asset Operator Assignment",
+  "naming_rule": "Expression (old style)",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    },
+    {
+      "create": 1,
+      "delete": 0,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "HR Manager",
+      "share": 1,
+      "write": 1
+    },
+    {
+      "read": 1,
+      "role": "All"
+    }
+  ],
+  "sort_field": "creation",
+  "sort_order": "DESC",
+  "states": [],
+  "track_changes": 1
+}

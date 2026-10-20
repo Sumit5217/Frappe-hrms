@@ -14,6 +14,9 @@
   },
   "aworkspaces": ["frontend", "roster", "frappe-ui"],
   "scripts": {
+    "dev": "npm --prefix react-ui run dev",
+    "dev-react": "npm --prefix react-ui run dev",
+    "backend": "wsl -e bash -c \"redis-server --port 11000 --daemonize yes 2>/dev/null; redis-server --port 13000 --daemonize yes 2>/dev/null; cd ~/frappe/my-bench && ./env/bin/bench --site mysite.localhost serve --port 8000 --host 0.0.0.0 --noreload\"",
     "postinstall": "yarn install-pwa-deps && yarn install-roster-deps",
     "install-pwa-deps": "cd frontend && yarn install --check-files",
     "install-roster-deps": "cd roster && yarn install --check-files",

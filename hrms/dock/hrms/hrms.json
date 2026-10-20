@@ -76,9 +76,17 @@
    "link_to": "Tax & Benefits",
    "link_type": "Sidebar",
    "title": "Tax & Benefits"
+  },
+  {
+   "added": 0,
+   "hidden": 0,
+   "icon": "message-circle-warning",
+   "link_to": "Complaints",
+   "link_type": "Sidebar",
+   "title": "Complaints"
   }
  ],
- "modified": "2026-08-27 12:00:00.000000",
+ "modified": "2026-10-01 12:00:00.000000",
  "modified_by": "Administrator",
  "name": "hrms",
  "owner": "Administrator",

@@ -8,13 +8,13 @@ import fs from "fs"
 
 export default defineConfig({
 	server: {
-		port: 8080,
+		port: 8085,
 		proxy: getProxyOptions(),
 		allowedHosts: true,
 	},
 	plugins: [
 		vue(),
-		frappeui(),
+		frappeui({ port: 8085 }),
 		VitePWA({
 			registerType: "autoUpdate",
 			strategies: "injectManifest",
@@ -113,7 +113,7 @@ function getProxyOptions() {
 function getCommonSiteConfig() {
 	let currentDir = path.resolve(".")
 	// traverse up till we find frappe-bench with sites directory
-	while (currentDir !== "/") {
+	while (currentDir !== "/" && path.resolve(currentDir, "..") !== currentDir) {
 		if (
 			fs.existsSync(path.join(currentDir, "sites")) &&
 			fs.existsSync(path.join(currentDir, "apps"))

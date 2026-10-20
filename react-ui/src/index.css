@@ -1,0 +1,195 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #F8FAFC;
+    color: #0F172A;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Modern Executive Headings Scale — Plus Jakarta Sans */
+  h1 {
+    font-family: 'Plus Jakarta Sans', Inter, sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.25;
+    letter-spacing: -0.03em;
+    color: #0F172A;
+  }
+
+  h2 {
+    font-family: 'Plus Jakarta Sans', Inter, sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.35;
+    letter-spacing: -0.025em;
+    color: #0F172A;
+  }
+
+  h3 {
+    font-family: 'Plus Jakarta Sans', Inter, sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: -0.015em;
+    color: #0F172A;
+  }
+
+  h4, h5, h6 {
+    font-family: 'Plus Jakarta Sans', Inter, sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: #0F172A;
+  }
+}
+
+@layer components {
+  /* Alexandria Primary CTA Button: Gradient Fill #094cb2 -> #1c5fcc */
+  .btn-primary {
+    background: linear-gradient(135deg, #094cb2 0%, #1c5fcc 100%);
+    color: #FFFFFF;
+    border-radius: 8px;
+    padding: 8px 18px;
+    font-weight: 600;
+    font-size: 13.5px;
+    letter-spacing: 0.01em;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 6px -1px rgba(9, 76, 178, 0.25);
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #084097 0%, #1752b0 100%);
+    box-shadow: 0 4px 12px -2px rgba(9, 76, 178, 0.35);
+    transform: translateY(-0.5px);
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(9, 76, 178, 0.2);
+  }
+
+  /* Alexandria Secondary Button: surface-high bg + primary text, no harsh border */
+  .btn-secondary {
+    background-color: #EAEDF2;
+    color: #094cb2;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-weight: 600;
+    font-size: 13.5px;
+    transition: all 0.15s ease-in-out;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 1px solid rgba(140, 150, 175, 0.15);
+    cursor: pointer;
+  }
+
+  .btn-secondary:hover {
+    background-color: #E1E5EB;
+    color: #084097;
+    border-color: rgba(9, 76, 178, 0.25);
+  }
+
+  /* Alexandria Tertiary: Text + Hover Underline */
+  .btn-tertiary {
+    background: transparent;
+    color: #094cb2;
+    padding: 6px 10px;
+    font-weight: 500;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .btn-tertiary:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* Alexandria Card: Tonal layering, No-Line rule with Ghost Border */
+  .nv-card {
+    background-color: #FFFFFF;
+    border: 1px solid rgba(140, 150, 175, 0.14);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px -2px rgba(18, 24, 38, 0.03);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .nv-card-elevated {
+    background-color: #F8F9FA;
+    border: 1px solid rgba(140, 150, 175, 0.14);
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  /* Alexandria Input: White bg, ghost border, focus = primary border */
+  .nv-input {
+    background-color: #FFFFFF;
+    border: 1px solid rgba(140, 150, 175, 0.25);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 13.5px;
+    color: #121826;
+    outline: none;
+    transition: all 0.15s ease-in-out;
+  }
+
+  .nv-input:focus {
+    border-color: #094cb2;
+    box-shadow: 0 0 0 3px rgba(9, 76, 178, 0.12);
+  }
+
+  /* Alexandria Archival Label Chip: Public Sans */
+  .nv-chip {
+    font-family: 'Public Sans', system-ui, sans-serif;
+    border-radius: 96px;
+    padding: 3px 10px;
+    font-size: 11.5px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    letter-spacing: 0.02em;
+  }
+
+  /* Archival Gold Badge */
+  .chip-archival {
+    background-color: #FDF8E2;
+    color: #6D5E00;
+    border: 1px solid rgba(109, 94, 0, 0.2);
+  }
+
+  /* Alexandria Glassmorphism for floating menus */
+  .glass-panel {
+    background-color: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(140, 150, 175, 0.16);
+  }
+
+  .glass-panel-dark {
+    background-color: rgba(13, 27, 42, 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+}

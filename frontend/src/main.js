@@ -97,15 +97,25 @@ const registerServiceWorker = async () => {
 
 router.isReady().then(async () => {
 	if (import.meta.env.DEV) {
-		await frappeRequest({
-			url: "/api/method/hrms.www.hrms.get_context_for_dev",
-		}).then(async (values) => {
-			if (!window.frappe) window.frappe = {}
-			window.frappe.boot = values
-		})
+		try {
+			await frappeRequest({
+				url: "/api/method/hrms.www.hrms.get_context_for_dev",
+				method: "GET",
+			}).then(async (values) => {
+				if (!window.frappe) window.frappe = {}
+				window.frappe.boot = values
+			})
+		} catch (err) {
+			console.warn("Failed to fetch dev context:", err)
+		}
 	}
 
-	await translationsPlugin.isReady();
+	try {
+		await translationsPlugin.isReady();
+	} catch (err) {
+		console.warn("Failed to load translations:", err)
+	}
+
 	registerServiceWorker()
 	app.mount("#app")
 })

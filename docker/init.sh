@@ -1,16 +1,19 @@
-#!bin/bash
+#!/bin/bash
+set -e
 
-if [ -d "/home/frappe/frappe-bench/apps/frappe" ]; then
-    echo "Bench already exists, skipping init"
+if [ -f "/home/frappe/frappe-bench/sites/hrms.localhost/site_config.json" ]; then
+    echo "Site already exists, skipping init"
     cd frappe-bench
     bench start
-else
-    echo "Creating new bench..."
+    exit 0
 fi
 
-export PATH="${NVM_DIR}/versions/node/v${NODE_VERSION_DEVELOP}/bin/:${PATH}"
+echo "Creating new bench..."
+rm -rf /home/frappe/frappe-bench
 
-bench init --skip-redis-config-generation frappe-bench
+export PATH="${NVM_DIR}/versions/node/v${NODE_VERSION:-$NODE_VERSION_PREV}/bin/:${PATH}"
+
+bench init --python /home/frappe/.pyenv/versions/3.14.2/bin/python3.14 --skip-redis-config-generation frappe-bench
 
 cd frappe-bench
 
@@ -20,9 +23,17 @@ bench set-redis-cache-host redis://redis:6379
 bench set-redis-queue-host redis://redis:6379
 bench set-redis-socketio-host redis://redis:6379
 
-# Remove redis, watch from Procfile
+# Remove redis, watch from Procfile and bind to 0.0.0.0
 sed -i '/redis/d' ./Procfile
 sed -i '/watch/d' ./Procfile
+sed -i 's/bench serve/bench serve --host 0.0.0.0/' ./Procfile
+
+echo "Waiting for MariaDB to be ready..."
+until mariadb-admin ping -h mariadb -u root -p123 --silent; do
+    echo "MariaDB is unavailable - sleeping"
+    sleep 2
+done
+echo "MariaDB is up and ready!"
 
 bench get-app erpnext
 bench get-app hrms

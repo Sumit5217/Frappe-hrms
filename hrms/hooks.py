@@ -171,6 +171,7 @@ override_doctype_class = {
 # Hook on document methods and events
 
 doc_events = {
+	# ── Existing events ──────────────────────────────────────────────────
 	"User": {
 		"validate": [
 			"erpnext.setup.doctype.employee.employee.validate_employee_role",
@@ -273,6 +274,8 @@ scheduler_events = {
 		"hrms.hr.doctype.shift_assignment.shift_assignment.mark_expired_shift_assignments_as_inactive",
 		"hrms.hr.doctype.job_opening.job_opening.close_expired_job_openings",
 		"hrms.telemetry.capture_daily_attendance_pulse",
+		# Complaint SLA auto-escalation
+		"hrms.complaints.doctype.complaint.complaint.auto_escalate_sla_breached",
 	],
 	"daily_long": [
 		"hrms.hr.doctype.leave_ledger_entry.leave_ledger_entry.process_expired_allocation",
@@ -414,3 +417,10 @@ employee_holiday_list = ["hrms.utils.holiday_list.get_holiday_list_for_employee"
 export_python_type_annotations = True
 require_type_annotated_api_methods = True
 repost_allowed_doctypes = ["Expense Claim"]
+
+scheduler_events = {
+	"daily": [
+		"hrms.complaints.doctype.complaint.complaint.auto_escalate_sla_breached",
+	],
+}
+

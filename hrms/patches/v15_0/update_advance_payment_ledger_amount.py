@@ -5,8 +5,15 @@ from frappe.query_builder import Case
 def execute():
 	advance_doctypes = ["Employee Advance", "Leave Encashment", "Gratuity"]
 
-	update_payment_entry(advance_doctypes)
-	update_journal_entry(advance_doctypes)
+	try:
+		update_payment_entry(advance_doctypes)
+	except Exception:
+		pass
+
+	try:
+		update_journal_entry(advance_doctypes)
+	except Exception:
+		pass
 
 
 def update_payment_entry(advance_doctypes):

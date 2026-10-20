@@ -87,6 +87,10 @@ const routes = [
 	...claimRoutes,
 	...employeeAdvanceRoutes,
 	...salarySlipRoutes,
+	{
+		path: "/:pathMatch(.*)*",
+		redirect: "/login",
+	},
 ]
 
 const router = createRouter({
