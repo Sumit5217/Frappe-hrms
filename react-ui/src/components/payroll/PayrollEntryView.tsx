@@ -33,7 +33,7 @@ export const PayrollEntryView: React.FC<PayrollEntryViewProps> = ({
   const [companyFilter, setCompanyFilter] = useState<string>('All');
 
   // Form states for New Payroll Entry
-  const [company, setCompany] = useState('Alpha vision pvt ltd');
+  const [company, setCompany] = useState('Nimble vision pvt ltd');
   const [postingDate, setPostingDate] = useState('2026-09-30');
   const [frequency, setFrequency] = useState<'Monthly' | 'Bimonthly' | 'Fortnightly' | 'Weekly'>('Monthly');
   const [startDate, setStartDate] = useState('2026-09-01');
@@ -248,7 +248,6 @@ export const PayrollEntryView: React.FC<PayrollEntryViewProps> = ({
           >
             <option value="All">All Companies</option>
             <option value="Nimble vision pvt ltd">Nimble vision pvt ltd</option>
-            <option value="Alpha vision pvt ltd">Alpha vision pvt ltd</option>
           </select>
         </div>
       </div>
@@ -440,13 +439,10 @@ export const PayrollEntryView: React.FC<PayrollEntryViewProps> = ({
                   onChange={(e) => setCompany(e.target.value)}
                   className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold text-gray-800 bg-white cursor-pointer"
                 >
-                  <option value="Alpha vision pvt ltd">Alpha vision pvt ltd</option>
                   <option value="Nimble vision pvt ltd">Nimble vision pvt ltd</option>
                 </select>
                 <p className="text-[11px] text-blue-600 mt-1 font-medium">
-                  {company.toLowerCase().includes('alpha')
-                    ? 'Processing for Alpha Vision staff (5 employees)'
-                    : 'Processing for Nimble Vision staff (6 employees)'}
+                  Processing for Nimble Vision staff
                 </p>
               </div>
 

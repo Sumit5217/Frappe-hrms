@@ -42,16 +42,8 @@ export const PayrollWizardModal: React.FC<PayrollWizardModalProps> = ({
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [processing, setProcessing] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
-  const [wizardCompany, setWizardCompany] = useState<'Nimble vision pvt ltd' | 'Alpha vision pvt ltd'>('Alpha vision pvt ltd');
+  const wizardCompany = 'Nimble vision pvt ltd';
   const cycleMonth = 'September 2026';
-
-  const alphaEmployeesList = [
-    { name: 'HR-EMP-00023', employee_name: 'Rohan Verma', department: 'Research & Development', designation: 'Engineer', gross: 55000 },
-    { name: 'HR-EMP-00024', employee_name: 'Kavita Patel', department: 'Human Resources', designation: 'HR Specialist', gross: 58000 },
-    { name: 'HR-EMP-00025', employee_name: 'Vikram Singhania', department: 'Engineering', designation: 'Frontend Developer', gross: 65000 },
-    { name: 'HR-EMP-00026', employee_name: 'Ananya Iyer', department: 'Quality Assurance', designation: 'Quality Assurance', gross: 52000 },
-    { name: 'HR-EMP-00027', employee_name: 'Sameer Khan', department: 'Operations', designation: 'DevOps Engineer', gross: 68000 },
-  ];
 
   const nimbleEmployeesList = [
     { name: 'HR-EMP-00016', employee_name: 'Tejas Desai', department: 'Engineering', designation: 'Software Developer', gross: 75000 },
@@ -66,7 +58,7 @@ export const PayrollWizardModal: React.FC<PayrollWizardModalProps> = ({
   const [rows, setRows] = useState<WizardEmployeeRow[]>([]);
 
   React.useEffect(() => {
-    const list = wizardCompany === 'Alpha vision pvt ltd' ? alphaEmployeesList : nimbleEmployeesList;
+    const list = nimbleEmployeesList;
     const computedRows = list.map((emp, idx) => {
       const gross = emp.gross;
       const pf = 1800; // Strict Statutory PF Cap
@@ -233,30 +225,11 @@ export const PayrollWizardModal: React.FC<PayrollWizardModalProps> = ({
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Company Scope Switcher */}
+            {/* Company Badge */}
             <div className="flex items-center gap-1 p-1 bg-slate-800 rounded-xl border border-slate-700 text-xs">
-              <button
-                type="button"
-                onClick={() => setWizardCompany('Nimble vision pvt ltd')}
-                className={`px-3 py-1 rounded-lg font-semibold transition-all cursor-pointer ${
-                  wizardCompany === 'Nimble vision pvt ltd'
-                    ? 'bg-blue-600 text-white shadow-xs'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
+              <span className="px-3 py-1 rounded-lg font-semibold bg-blue-600 text-white shadow-xs">
                 🏢 Nimble Vision
-              </button>
-              <button
-                type="button"
-                onClick={() => setWizardCompany('Alpha vision pvt ltd')}
-                className={`px-3 py-1 rounded-lg font-semibold transition-all cursor-pointer ${
-                  wizardCompany === 'Alpha vision pvt ltd'
-                    ? 'bg-emerald-600 text-white shadow-xs'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                🏢 Alpha Vision
-              </button>
+              </span>
             </div>
 
             <button

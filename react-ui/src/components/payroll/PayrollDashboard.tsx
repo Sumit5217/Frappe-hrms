@@ -184,78 +184,20 @@ const REAL_EMPLOYEE_PRESETS: PayrollRecord[] = [
   },
 ];
 
-const ALPHA_VISION_PRESETS: PayrollRecord[] = [
-  {
-    empNo: 'HR-EMP-00023',
-    name: 'Rohan Verma',
-    category: 'Technical',
-    employmentStatus: 'Active',
-    basic: 27500,
-    specialAllowance: 27500,
-    gross: 55000,
-    pf: 1800,
-    incomeTax: 1200,
-    profTax: 200,
-    totalDeductions: -3200,
-    netPay: 51800,
-  },
-  {
-    empNo: 'HR-EMP-00024',
-    name: 'Kavita Patel',
-    category: 'Operations',
-    employmentStatus: 'Active',
-    basic: 29000,
-    specialAllowance: 29000,
-    gross: 58000,
-    pf: 1800,
-    incomeTax: 1400,
-    profTax: 200,
-    totalDeductions: -3400,
-    netPay: 54600,
-  },
-  {
-    empNo: 'HR-EMP-00025',
-    name: 'Vikram Singhania',
-    category: 'Technical',
-    employmentStatus: 'Active',
-    basic: 32500,
-    specialAllowance: 32500,
-    gross: 65000,
-    pf: 1800,
-    incomeTax: 1800,
-    profTax: 200,
-    totalDeductions: -3800,
-    netPay: 61200,
-  },
-  {
-    empNo: 'HR-EMP-00026',
-    name: 'Ananya Iyer',
-    category: 'Technical',
-    employmentStatus: 'Active',
-    basic: 26000,
-    specialAllowance: 26000,
-    gross: 52000,
-    pf: 1800,
-    incomeTax: 1100,
-    profTax: 200,
-    totalDeductions: -3100,
-    netPay: 48900,
-  },
-  {
-    empNo: 'HR-EMP-00027',
-    name: 'Sameer Khan',
-    category: 'Operations',
-    employmentStatus: 'Active',
-    basic: 34000,
-    specialAllowance: 34000,
-    gross: 68000,
-    pf: 1800,
-    incomeTax: 2100,
-    profTax: 200,
-    totalDeductions: -4100,
-    netPay: 63900,
-  },
-];
+const MONTH_NUM_MAP: Record<string, string> = {
+  'apr-2026': '2026-04',
+  'may-2026': '2026-05',
+  'jun-2026': '2026-06',
+  'jul-2026': '2026-07',
+  'aug-2026': '2026-08',
+  'sep-2026': '2026-09',
+  'oct-2026': '2026-10',
+  'nov-2026': '2026-11',
+  'dec-2026': '2026-12',
+  'jan-2027': '2027-01',
+  'feb-2027': '2027-02',
+  'mar-2027': '2027-03',
+};
 
 export const PayrollDashboard: React.FC<PayrollDashboardProps> = ({
   employees = [],
@@ -263,8 +205,17 @@ export const PayrollDashboard: React.FC<PayrollDashboardProps> = ({
   onOpenWizard,
   onOpenSimulator,
 }) => {
-  // Selected Company Scope: default to Alpha Vision or Nimble Vision
-  const [selectedCompany, setSelectedCompany] = useState<'All' | 'Nimble vision pvt ltd' | 'Alpha vision pvt ltd'>('Nimble vision pvt ltd');
+  const availableCompanies = useMemo(() => {
+    const set = new Set<string>();
+    employees.forEach((emp) => {
+      if (emp.company) set.add(emp.company);
+    });
+    if (set.size === 0) set.add('Nimble vision pvt ltd');
+    return Array.from(set);
+  }, [employees]);
+
+  // Selected Company Scope: default to primary company
+  const [selectedCompany, setSelectedCompany] = useState<string>('Nimble vision pvt ltd');
 
   // Selected Month State (Defaults to June 2026 matching Screenshot 2)
   const [selectedMonthId, setSelectedMonthId] = useState<string>('jun-2026');
@@ -412,22 +363,18 @@ export const PayrollDashboard: React.FC<PayrollDashboardProps> = ({
   const baseEmployeeRecords = useMemo((): PayrollRecord[] => {
     let sourceEmployees = employees;
     if (selectedCompany !== 'All') {
-      const isAlpha = selectedCompany.toLowerCase().includes('alpha');
       sourceEmployees = employees.filter((emp) => {
         const c = (emp.company || '').toLowerCase();
-        return isAlpha ? c.includes('alpha') : (c.includes('nimble') || !c);
+        return c.includes(selectedCompany.toLowerCase()) || !c;
       });
     }
 
     if (!sourceEmployees || sourceEmployees.length === 0) {
-      if (selectedCompany === 'Alpha vision pvt ltd') return ALPHA_VISION_PRESETS;
-      if (selectedCompany === 'Nimble vision pvt ltd') return REAL_EMPLOYEE_PRESETS;
-      return [...REAL_EMPLOYEE_PRESETS, ...ALPHA_VISION_PRESETS];
+      return [];
     }
 
     return sourceEmployees.map((emp): PayrollRecord => {
-      const allPresets = [...REAL_EMPLOYEE_PRESETS, ...ALPHA_VISION_PRESETS];
-      const match = allPresets.find(
+      const match = REAL_EMPLOYEE_PRESETS.find(
         (p) => p.empNo === emp.name || p.name.toLowerCase() === (emp.employee_name || '').toLowerCase()
       );
       if (match) {
@@ -438,14 +385,13 @@ export const PayrollDashboard: React.FC<PayrollDashboardProps> = ({
           isExcluded: false,
         };
       }
-      const isAlpha = (emp.company || '').toLowerCase().includes('alpha');
       const isAnalyst = emp.designation?.toLowerCase().includes('analyst');
-      const basic = isAlpha ? 28000 : (isAnalyst ? 48000 : 45000);
-      const specialAllowance = isAlpha ? 28000 : (isAnalyst ? 32000 : 30000);
+      const basic = isAnalyst ? 48000 : 45000;
+      const specialAllowance = isAnalyst ? 32000 : 30000;
       const gross = basic + specialAllowance;
       const pf = 1800; // EPFO Statutory Cap (12% of ₹15,000 wage ceiling)
       const profTax = 200;
-      const incomeTax = isAlpha ? 1400 : (isAnalyst ? 3337 : 2817);
+      const incomeTax = isAnalyst ? 3337 : 2817;
       const totalDeductions = -(pf + incomeTax + profTax);
       const netPay = gross - (pf + incomeTax + profTax);
       return {
@@ -470,22 +416,7 @@ export const PayrollDashboard: React.FC<PayrollDashboardProps> = ({
   const monthRecords = useMemo((): PayrollRecord[] => {
     const factor = currentMonth.scaleFactor;
     const totalDays = currentMonth.workDays || 30;
-
-    const monthNumMap: Record<string, string> = {
-      'apr-2026': '2026-04',
-      'may-2026': '2026-05',
-      'jun-2026': '2026-06',
-      'jul-2026': '2026-07',
-      'aug-2026': '2026-08',
-      'sep-2026': '2026-09',
-      'oct-2026': '2026-10',
-      'nov-2026': '2026-11',
-      'dec-2026': '2026-12',
-      'jan-2027': '2027-01',
-      'feb-2027': '2027-02',
-      'mar-2027': '2027-03',
-    };
-    const currentPrefix = monthNumMap[currentMonth.id] || '2026-09';
+    const currentPrefix = MONTH_NUM_MAP[currentMonth.id] || '2026-09';
     const matchingDbSlips = isDbSyncActive && dbSlips.length > 0
       ? dbSlips.filter((s: any) => s.start_date?.startsWith(currentPrefix))
       : [];
@@ -598,6 +529,38 @@ export const PayrollDashboard: React.FC<PayrollDashboardProps> = ({
       setProcessSuccessToast(`Payroll for ${currentMonth.fullTitle} has been successfully computed and generated.`);
       setTimeout(() => setProcessSuccessToast(null), 4500);
     }, 1200);
+  };
+
+  // Handle Delete / Reset Payroll for Month
+  const handleDeleteMonthPayroll = async () => {
+    if (!confirm(`Are you sure you want to delete and clear all payroll records for ${currentMonth.fullTitle}?`)) {
+      return;
+    }
+    setIsProcessing(true);
+    try {
+      const monthPrefix = MONTH_NUM_MAP[currentMonth.id];
+      if (monthPrefix && dbSlips.length > 0) {
+        const toDelete = dbSlips.filter((s: any) => s.start_date?.startsWith(monthPrefix));
+        for (const slip of toDelete) {
+          try {
+            await frappeApi.deleteDocRecord('Salary Slip', slip.name);
+          } catch (e) {
+            console.error(`Failed to delete slip ${slip.name}:`, e);
+          }
+        }
+      }
+      setDeletedEmpNos((prev) => ({
+        ...prev,
+        [currentMonth.id]: baseEmployeeRecords.map((r) => r.empNo),
+      }));
+      setProcessSuccessToast(`Payroll records for ${currentMonth.fullTitle} successfully cleared.`);
+      setTimeout(() => setProcessSuccessToast(null), 3500);
+      fetchDbSlips();
+    } catch (err) {
+      console.error('Error clearing payroll for month:', err);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   // Export to Excel function
@@ -815,7 +778,7 @@ export const PayrollDashboard: React.FC<PayrollDashboardProps> = ({
             <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Company Payroll Scope</span>
             <div className="flex items-center gap-2">
               <h3 className="font-bold text-sm text-slate-900">
-                {selectedCompany === 'All' ? 'All Companies Combined' : selectedCompany}
+                {selectedCompany === 'All' ? 'All Companies' : selectedCompany}
               </h3>
               <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">
                 {baseEmployeeRecords.length} Staff Members
@@ -824,42 +787,45 @@ export const PayrollDashboard: React.FC<PayrollDashboardProps> = ({
           </div>
         </div>
 
-        {/* Interactive Segmented Switcher */}
-        <div className="flex items-center gap-1.5 p-1 bg-slate-100/90 rounded-xl border border-slate-200 text-xs w-full sm:w-auto overflow-x-auto">
-          <button
-            type="button"
-            onClick={() => setSelectedCompany('Nimble vision pvt ltd')}
-            className={`px-3 py-1.5 rounded-lg font-semibold transition-all cursor-pointer whitespace-nowrap ${
-              selectedCompany === 'Nimble vision pvt ltd'
-                ? 'bg-white text-blue-600 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            🏢 Nimble Vision (6 Staff)
-          </button>
-          <button
-            type="button"
-            onClick={() => setSelectedCompany('Alpha vision pvt ltd')}
-            className={`px-3 py-1.5 rounded-lg font-semibold transition-all cursor-pointer whitespace-nowrap ${
-              selectedCompany === 'Alpha vision pvt ltd'
-                ? 'bg-white text-emerald-600 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            🏢 Alpha Vision (5 Staff)
-          </button>
-          <button
-            type="button"
-            onClick={() => setSelectedCompany('All')}
-            className={`px-2.5 py-1.5 rounded-lg font-semibold transition-all cursor-pointer whitespace-nowrap ${
-              selectedCompany === 'All'
-                ? 'bg-white text-slate-900 shadow-xs'
-                : 'text-slate-500 hover:text-slate-900'
-            }`}
-          >
-            All (11 Staff)
-          </button>
-        </div>
+        {/* Dynamic Company Switcher */}
+        {availableCompanies.length > 1 ? (
+          <div className="flex items-center gap-1.5 p-1 bg-slate-100/90 rounded-xl border border-slate-200 text-xs w-full sm:w-auto overflow-x-auto">
+            <button
+              type="button"
+              onClick={() => setSelectedCompany('All')}
+              className={`px-2.5 py-1.5 rounded-lg font-semibold transition-all cursor-pointer whitespace-nowrap ${
+                selectedCompany === 'All'
+                  ? 'bg-white text-slate-900 shadow-xs'
+                  : 'text-slate-500 hover:text-slate-900'
+              }`}
+            >
+              All Companies ({employees.length} Staff)
+            </button>
+            {availableCompanies.map((c) => {
+              const count = employees.filter((e) => (e.company || '').toLowerCase() === c.toLowerCase()).length;
+              return (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => setSelectedCompany(c)}
+                  className={`px-3 py-1.5 rounded-lg font-semibold transition-all cursor-pointer whitespace-nowrap ${
+                    selectedCompany === c
+                      ? 'bg-white text-blue-600 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  🏢 {c} ({count} Staff)
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="flex items-center gap-1.5 p-1 bg-slate-100/90 rounded-xl border border-slate-200 text-xs">
+            <span className="px-3 py-1.5 rounded-lg font-semibold bg-white text-blue-600 shadow-xs">
+              🏢 {availableCompanies[0]} ({baseEmployeeRecords.length} Staff)
+            </span>
+          </div>
+        )}
       </div>
 
       {/* 1. TOP FINANCIAL YEAR MONTH TIMELINE BAR (April 2026 to March 2027) */}
@@ -1144,12 +1110,10 @@ export const PayrollDashboard: React.FC<PayrollDashboardProps> = ({
                   setIsGreytHRModalOpen(true);
                   return;
                 }
-                if (confirm(`Reset and recalculate payroll for ${currentMonth.fullTitle}?`)) {
-                  handleProcessPayroll();
-                }
+                handleDeleteMonthPayroll();
               }}
               className="text-slate-400 hover:text-rose-600 transition-colors p-1 rounded-md"
-              title="Reset Month Data"
+              title="Delete and Clear Month Payroll Data"
             >
               <Trash2 className="w-3.5 h-3.5" />
             </button>

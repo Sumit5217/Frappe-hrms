@@ -89,10 +89,10 @@ export const SalaryStructureAssignmentView: React.FC<SalaryStructureAssignmentVi
       employee_name: 'Employee',
       department: 'Engineering',
       designation: 'Staff',
-      company: 'Alpha vision pvt ltd',
+      company: 'Nimble vision pvt ltd',
     };
 
-    const resolvedCompany = empObj.company || 'Alpha vision pvt ltd';
+    const resolvedCompany = empObj.company || 'Nimble vision pvt ltd';
     const newAssignment: SalaryStructureAssignment = {
       name: `SSA-${Date.now().toString().slice(-5)}`,
       employee: empObj.name,
@@ -202,7 +202,6 @@ export const SalaryStructureAssignmentView: React.FC<SalaryStructureAssignmentVi
           >
             <option value="All">All Companies</option>
             <option value="Nimble vision pvt ltd">Nimble vision</option>
-            <option value="Alpha vision pvt ltd">Alpha vision</option>
           </select>
         </div>
       </div>

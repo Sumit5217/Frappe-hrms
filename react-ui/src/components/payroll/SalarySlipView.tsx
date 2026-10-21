@@ -17,190 +17,6 @@ import { Employee } from '../../types';
 import { SalarySlip } from './types';
 import { PayslipModal } from './PayslipModal';
 import { downloadSalarySlipPDF } from '../../utils/salarySlipPdf';
-
-const ALPHA_VISION_DEFAULT_SLIPS: SalarySlip[] = [
-  {
-    name: 'SAL-SLIP-2026-09-0023',
-    employee: 'HR-EMP-00023',
-    employee_name: 'Rohan Verma',
-    department: 'Research & Development',
-    designation: 'Engineer',
-    company: 'Alpha vision pvt ltd',
-    posting_date: '2026-09-30',
-    start_date: '2026-09-01',
-    end_date: '2026-09-30',
-    total_working_days: 30,
-    payment_days: 30,
-    leave_without_pay: 0,
-    gross_pay: 55000,
-    total_deduction: 3200,
-    net_pay: 51800,
-    status: 'Submitted',
-    earnings: [
-      { salary_component: 'Basic Salary', amount: 27500 },
-      { salary_component: 'Special Allowance', amount: 27500 },
-    ],
-    deductions: [
-      { salary_component: 'Provident Fund (PF - Statutory)', amount: 1800 },
-      { salary_component: 'Income Tax (TDS - Sec 115BAC)', amount: 1200 },
-      { salary_component: 'Professional Tax (PT)', amount: 200 },
-    ],
-  },
-  {
-    name: 'SAL-SLIP-2026-09-0024',
-    employee: 'HR-EMP-00024',
-    employee_name: 'Kavita Patel',
-    department: 'Human Resources',
-    designation: 'HR Specialist',
-    company: 'Alpha vision pvt ltd',
-    posting_date: '2026-09-30',
-    start_date: '2026-09-01',
-    end_date: '2026-09-30',
-    total_working_days: 30,
-    payment_days: 30,
-    leave_without_pay: 0,
-    gross_pay: 58000,
-    total_deduction: 3400,
-    net_pay: 54600,
-    status: 'Submitted',
-    earnings: [
-      { salary_component: 'Basic Salary', amount: 29000 },
-      { salary_component: 'Special Allowance', amount: 29000 },
-    ],
-    deductions: [
-      { salary_component: 'Provident Fund (PF - Statutory)', amount: 1800 },
-      { salary_component: 'Income Tax (TDS - Sec 115BAC)', amount: 1400 },
-      { salary_component: 'Professional Tax (PT)', amount: 200 },
-    ],
-  },
-  {
-    name: 'SAL-SLIP-2026-09-0025',
-    employee: 'HR-EMP-00025',
-    employee_name: 'Vikram Singhania',
-    department: 'Engineering',
-    designation: 'Frontend Developer',
-    company: 'Alpha vision pvt ltd',
-    posting_date: '2026-09-30',
-    start_date: '2026-09-01',
-    end_date: '2026-09-30',
-    total_working_days: 30,
-    payment_days: 30,
-    leave_without_pay: 0,
-    gross_pay: 65000,
-    total_deduction: 3800,
-    net_pay: 61200,
-    status: 'Submitted',
-    earnings: [
-      { salary_component: 'Basic Salary', amount: 32500 },
-      { salary_component: 'Special Allowance', amount: 32500 },
-    ],
-    deductions: [
-      { salary_component: 'Provident Fund (PF - Statutory)', amount: 1800 },
-      { salary_component: 'Income Tax (TDS - Sec 115BAC)', amount: 1800 },
-      { salary_component: 'Professional Tax (PT)', amount: 200 },
-    ],
-  },
-  {
-    name: 'SAL-SLIP-2026-09-0026',
-    employee: 'HR-EMP-00026',
-    employee_name: 'Ananya Iyer',
-    department: 'Quality Assurance',
-    designation: 'Quality Assurance',
-    company: 'Alpha vision pvt ltd',
-    posting_date: '2026-09-30',
-    start_date: '2026-09-01',
-    end_date: '2026-09-30',
-    total_working_days: 30,
-    payment_days: 30,
-    leave_without_pay: 0,
-    gross_pay: 52000,
-    total_deduction: 3100,
-    net_pay: 48900,
-    status: 'Submitted',
-    earnings: [
-      { salary_component: 'Basic Salary', amount: 26000 },
-      { salary_component: 'Special Allowance', amount: 26000 },
-    ],
-    deductions: [
-      { salary_component: 'Provident Fund (PF - Statutory)', amount: 1800 },
-      { salary_component: 'Income Tax (TDS - Sec 115BAC)', amount: 1100 },
-      { salary_component: 'Professional Tax (PT)', amount: 200 },
-    ],
-  },
-  {
-    name: 'SAL-SLIP-2026-09-0027',
-    employee: 'HR-EMP-00027',
-    employee_name: 'Sameer Khan',
-    department: 'Operations',
-    designation: 'DevOps Engineer',
-    company: 'Alpha vision pvt ltd',
-    posting_date: '2026-09-30',
-    start_date: '2026-09-01',
-    end_date: '2026-09-30',
-    total_working_days: 30,
-    payment_days: 30,
-    leave_without_pay: 0,
-    gross_pay: 68000,
-    total_deduction: 4100,
-    net_pay: 63900,
-    status: 'Submitted',
-    earnings: [
-      { salary_component: 'Basic Salary', amount: 34000 },
-      { salary_component: 'Special Allowance', amount: 34000 },
-    ],
-    deductions: [
-      { salary_component: 'Provident Fund (PF - Statutory)', amount: 1800 },
-      { salary_component: 'Income Tax (TDS - Sec 115BAC)', amount: 2100 },
-      { salary_component: 'Professional Tax (PT)', amount: 200 },
-    ],
-  },
-];
-
-const NIMBLE_VISION_DEFAULT_SLIPS: SalarySlip[] = [
-  { name: 'HR-EMP-00016', employee_name: 'Tejas Desai', department: 'Engineering', designation: 'Software Developer', company: 'Nimble Vision Pvt Ltd' },
-  { name: 'HR-EMP-00017', employee_name: 'Tarun Kumar', department: 'Engineering', designation: 'Software Developer', company: 'Nimble Vision Pvt Ltd' },
-  { name: 'HR-EMP-00018', employee_name: 'Bhagya Shree', department: 'Engineering', designation: 'Software Developer', company: 'Nimble Vision Pvt Ltd' },
-  { name: 'HR-EMP-00019', employee_name: 'Sushmita Kumari', department: 'Engineering', designation: 'Software Developer', company: 'Nimble Vision Pvt Ltd' },
-  { name: 'HR-EMP-00020', employee_name: 'Priya Kumari', department: 'Engineering', designation: 'Software Developer', company: 'Nimble Vision Pvt Ltd' },
-  { name: 'HR-EMP-00021', employee_name: 'Sia Kureel', department: 'Operations - NVPL', designation: 'Business Analyst', company: 'Nimble Vision Pvt Ltd' },
-].map((emp: any, idx: number) => {
-  const isAnalyst = emp.name === 'HR-EMP-00021' || emp.designation.includes('Analyst');
-  const basic = isAnalyst ? 48000 : 45000;
-  const specialAllowance = isAnalyst ? 32000 : 30000;
-  const gross = isAnalyst ? 80000 : 75000;
-  const pf = 1800;
-  const profTax = 200;
-  const incomeTax = isAnalyst ? 3337 : 2817;
-  const ded = pf + profTax + incomeTax;
-  return {
-    name: `SAL-SLIP-2026-09-${String(idx + 1).padStart(4, '0')}`,
-    employee: emp.name,
-    employee_name: emp.employee_name,
-    department: emp.department || 'Operations',
-    designation: emp.designation,
-    company: 'Nimble Vision Pvt Ltd',
-    posting_date: '2026-09-30',
-    start_date: '2026-09-01',
-    end_date: '2026-09-30',
-    total_working_days: 30,
-    payment_days: 30,
-    leave_without_pay: 0,
-    gross_pay: gross,
-    total_deduction: ded,
-    net_pay: gross - ded,
-    status: 'Submitted',
-    earnings: [
-      { salary_component: 'Basic Salary', amount: basic },
-      { salary_component: 'Special Allowance', amount: specialAllowance },
-    ],
-    deductions: [
-      { salary_component: 'Provident Fund (PF - Statutory)', amount: pf },
-      { salary_component: 'Income Tax (TDS - Sec 115BAC)', amount: incomeTax },
-      { salary_component: 'Professional Tax (PT)', amount: profTax },
-    ],
-  };
-});
-
 interface SalarySlipViewProps {
   employees: Employee[];
 }
@@ -275,19 +91,12 @@ export const SalarySlipView: React.FC<SalarySlipViewProps> = ({ employees }) => 
           };
         });
 
-        // Ensure both Alpha Vision & Nimble Vision slips are visible
-        const hasAlpha = mapped.some((s: any) => (s.company || '').toLowerCase().includes('alpha'));
-        const hasNimble = mapped.some((s: any) => (s.company || '').toLowerCase().includes('nimble'));
-
-        let combined = [...mapped];
-        if (!hasAlpha) combined = [...combined, ...ALPHA_VISION_DEFAULT_SLIPS];
-        if (!hasNimble) combined = [...NIMBLE_VISION_DEFAULT_SLIPS, ...combined];
-        setSlips(combined);
+        setSlips(mapped);
       } else {
-        setSlips([...NIMBLE_VISION_DEFAULT_SLIPS, ...ALPHA_VISION_DEFAULT_SLIPS]);
+        setSlips([]);
       }
     } catch {
-      setSlips([...NIMBLE_VISION_DEFAULT_SLIPS, ...ALPHA_VISION_DEFAULT_SLIPS]);
+      setSlips([]);
     } finally {
       setLoading(false);
     }
@@ -305,14 +114,14 @@ export const SalarySlipView: React.FC<SalarySlipViewProps> = ({ employees }) => 
       employee_name: 'Selected Employee',
       department: 'Engineering',
       designation: 'Specialist',
-      company: 'Alpha vision pvt ltd',
+      company: 'Nimble vision pvt ltd',
     };
 
     const gross = Number(newGrossPay) || 50000;
     const ded = Number(newDeductions) || 4000;
     const net = gross - ded;
 
-    const resolvedCompany = empObj.company || 'Alpha vision pvt ltd';
+    const resolvedCompany = empObj.company || 'Nimble vision pvt ltd';
     const newSlip: SalarySlip = {
       name: `SAL-SLIP-${Date.now().toString().slice(-6)}`,
       employee: empObj.name,
@@ -491,7 +300,6 @@ export const SalarySlipView: React.FC<SalarySlipViewProps> = ({ employees }) => 
             >
               <option value="All">All Companies</option>
               <option value="Nimble vision pvt ltd">Nimble vision</option>
-              <option value="Alpha vision pvt ltd">Alpha vision</option>
             </select>
           </div>
 
