@@ -501,9 +501,9 @@ export const frappeApi = {
       }
 
       // 2. Create the Employee record linked to user_id
-      let resolvedCompany = data.company || 'Nimble vision pvt ltd';
+      let resolvedCompany = data.company || 'Nimble Vision pvt ltd';
       if (resolvedCompany.toLowerCase().includes('nimble')) {
-        resolvedCompany = 'Nimble vision pvt ltd';
+        resolvedCompany = 'Nimble Vision pvt ltd';
       }
 
       const payload: any = {
