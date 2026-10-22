@@ -11,6 +11,7 @@ import {
 import { frappeApi } from '../../api/frappe';
 import { Employee } from '../../types';
 import { SalaryStructureAssignment } from './types';
+import { calculateStatutoryPayroll } from '../../utils/statutoryPayroll';
 
 interface SalaryStructureAssignmentViewProps {
   employees: Employee[];
@@ -214,40 +215,68 @@ export const SalaryStructureAssignmentView: React.FC<SalaryStructureAssignmentVi
               <tr>
                 <th className="py-3 px-4">Assignment ID</th>
                 <th className="py-3 px-4">Employee</th>
-                <th className="py-3 px-4">Assigned Salary Structure</th>
-                <th className="py-3 px-4">Base Salary / CTC</th>
+                <th className="py-3 px-4">Assigned Structure</th>
+                <th className="py-3 px-4">Gross CTC</th>
+                <th className="py-3 px-4">Statutory Taxes (PF • PT • TDS)</th>
+                <th className="py-3 px-4">In-Hand Net</th>
                 <th className="py-3 px-4">Effective From</th>
                 <th className="py-3 px-4">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 font-medium">
-              {filtered.map((a) => (
-                <tr key={a.name} className="hover:bg-gray-50/80 transition-colors">
-                  <td className="py-3.5 px-4 font-mono font-bold text-indigo-600">{a.name}</td>
-                  <td className="py-3.5 px-4">
-                    <div>
-                      <span className="font-bold text-gray-900 block">{a.employee_name}</span>
-                      <span className="text-[11px] text-gray-400">{a.employee} • {a.department}</span>
-                    </div>
-                  </td>
-                  <td className="py-3.5 px-4 font-semibold text-gray-800">
-                    <span className="inline-flex items-center gap-1.5 bg-gray-50 border border-gray-200 px-2.5 py-1 rounded-md">
-                      <Layers className="w-3 h-3 text-indigo-500" />
-                      <span>{a.salary_structure}</span>
-                    </span>
-                  </td>
-                  <td className="py-3.5 px-4 font-black text-emerald-700 text-sm">
-                    ₹{a.base.toLocaleString('en-IN')} / month
-                  </td>
-                  <td className="py-3.5 px-4 font-mono text-gray-600">{a.from_date}</td>
-                  <td className="py-3.5 px-4">
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      <CheckCircle2 className="w-3 h-3" />
-                      <span>Active</span>
-                    </span>
-                  </td>
-                </tr>
-              ))}
+              {filtered.map((a) => {
+                const stat = calculateStatutoryPayroll(a.base || 0);
+                return (
+                  <tr key={a.name} className="hover:bg-gray-50/80 transition-colors">
+                    <td className="py-3.5 px-4 font-mono font-bold text-indigo-600">{a.name}</td>
+                    <td className="py-3.5 px-4">
+                      <div>
+                        <span className="font-bold text-gray-900 block">{a.employee_name}</span>
+                        <span className="text-[11px] text-gray-400">{a.employee} • {a.department}</span>
+                      </div>
+                    </td>
+                    <td className="py-3.5 px-4 font-semibold text-gray-800">
+                      <span className="inline-flex items-center gap-1.5 bg-gray-50 border border-gray-200 px-2.5 py-1 rounded-md">
+                        <Layers className="w-3 h-3 text-indigo-500" />
+                        <span>{a.salary_structure}</span>
+                      </span>
+                    </td>
+                    <td className="py-3.5 px-4 font-bold text-slate-900 text-sm">
+                      ₹{a.base.toLocaleString('en-IN')}
+                      <span className="block text-[10px] text-slate-400 font-normal">₹{(a.base * 12).toLocaleString('en-IN')}/yr</span>
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <div className="flex flex-col gap-0.5 text-[11px] font-mono">
+                        <div className="flex items-center gap-2">
+                          <span className="text-slate-500">PF:</span>
+                          <span className="font-semibold text-slate-800">₹{stat.pf.toLocaleString('en-IN')}</span>
+                          <span className="text-slate-300">|</span>
+                          <span className="text-slate-500">PT:</span>
+                          <span className="font-semibold text-slate-800">₹{stat.pt.toLocaleString('en-IN')}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-indigo-600 font-semibold">TDS (115BAC):</span>
+                          <span className="font-bold text-indigo-900">₹{stat.tds.toLocaleString('en-IN')}</span>
+                          {stat.tds === 0 && (
+                            <span className="text-[9px] text-emerald-600 bg-emerald-50 px-1 rounded font-sans font-medium">Rebate Nil</span>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-3.5 px-4 font-black text-emerald-700 text-sm">
+                      ₹{stat.netPay.toLocaleString('en-IN')}
+                      <span className="block text-[10px] text-emerald-600 font-normal">Take-Home</span>
+                    </td>
+                    <td className="py-3.5 px-4 font-mono text-gray-600">{a.from_date}</td>
+                    <td className="py-3.5 px-4">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <CheckCircle2 className="w-3 h-3" />
+                        <span>Active</span>
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -316,7 +345,7 @@ export const SalaryStructureAssignmentView: React.FC<SalaryStructureAssignmentVi
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="font-bold text-gray-700 block mb-1">Monthly Base (₹)</label>
+                  <label className="font-bold text-gray-700 block mb-1">Monthly Base / CTC (₹)</label>
                   <input
                     type="number"
                     required
@@ -336,6 +365,60 @@ export const SalaryStructureAssignmentView: React.FC<SalaryStructureAssignmentVi
                   />
                 </div>
               </div>
+
+              {/* Live Statutory Tax & Pay Breakdown Preview */}
+              {(() => {
+                const stat = calculateStatutoryPayroll(Number(base) || 0);
+                return (
+                  <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-slate-800 uppercase tracking-wider">
+                        Statutory Tax & Compensation Breakdown
+                      </span>
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                        Section 115BAC Compliant
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-[11px]">
+                      <div className="bg-white p-2 rounded-lg border border-slate-200/80">
+                        <span className="text-slate-500 block text-[10px]">Basic Salary (60%)</span>
+                        <span className="font-bold text-slate-900">₹{stat.basic.toLocaleString('en-IN')}</span>
+                      </div>
+                      <div className="bg-white p-2 rounded-lg border border-slate-200/80">
+                        <span className="text-slate-500 block text-[10px]">Special Allowance (40%)</span>
+                        <span className="font-bold text-slate-900">₹{stat.specialAllowance.toLocaleString('en-IN')}</span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2 text-[11px]">
+                      <div className="bg-white p-2 rounded-lg border border-slate-200/80">
+                        <span className="text-slate-500 block text-[10px]">PF (EPFO Cap)</span>
+                        <span className="font-bold text-slate-900">₹{stat.pf.toLocaleString('en-IN')}</span>
+                      </div>
+                      <div className="bg-white p-2 rounded-lg border border-slate-200/80">
+                        <span className="text-slate-500 block text-[10px]">PT (Prof Tax)</span>
+                        <span className="font-bold text-slate-900">₹{stat.pt.toLocaleString('en-IN')}</span>
+                      </div>
+                      <div className="bg-indigo-50/70 p-2 rounded-lg border border-indigo-200/80">
+                        <span className="text-indigo-600 block text-[10px] font-semibold">TDS (Income Tax)</span>
+                        <span className="font-black text-indigo-950">₹{stat.tds.toLocaleString('en-IN')}</span>
+                      </div>
+                    </div>
+
+                    <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-xs">
+                      <div>
+                        <span className="text-[10px] text-slate-500 block">Total Deductions</span>
+                        <span className="font-bold text-rose-600">-₹{stat.totalDeductions.toLocaleString('en-IN')}</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-[10px] text-slate-500 block">Estimated Net Take-Home</span>
+                        <span className="font-black text-emerald-700 text-sm">₹{stat.netPay.toLocaleString('en-IN')}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
 
               <div className="pt-3 border-t border-gray-100 flex items-center justify-end gap-2.5">
                 <button

@@ -53,32 +53,63 @@ def run():
     for e in employees:
         print(f"  {e.name}: {e.employee_name} ({e.designation})")
 
-    # Salary configurations for the real team members
-    # EPFO Statutory Cap: PF is capped at ₹1,800/mo (12% of ₹15,000 statutory limit)
-    # Developers: Gross 75,000 | Basic 45,000 | Special 30,000 | PF 1,800 | PT 200 | TDS 2,817 | Net 70,183
-    # Business Analyst: Gross 80,000 | Basic 48,000 | Special 32,000 | PF 1,800 | PT 200 | TDS 3,337 | Net 74,663
-    presets = {
-        "Developer": {
-            "basic": 45000,
-            "specialAllowance": 30000,
-            "gross": 75000,
-            "pf": 1800,
-            "profTax": 200,
-            "incomeTax": 2817,
-            "totalDeductions": 4817,
-            "netPay": 70183
-        },
-        "Business Analyst": {
-            "basic": 48000,
-            "specialAllowance": 32000,
-            "gross": 80000,
-            "pf": 1800,
-            "profTax": 200,
-            "incomeTax": 3337,
-            "totalDeductions": 5337,
-            "netPay": 74663
+    # Individual CTC Packages matching Salary Structure Assignment screen:
+    # 1. Sushmita Kumari: ₹65,000/mo (Executive Leadership CTC)
+    # 2. Tarun Kumar: ₹80,000/mo (Standard Engineering CTC)
+    # 3. Tejas Desai: ₹95,000/mo (Standard Engineering CTC)
+    def calculate_statutory_tds(monthly_gross):
+        annual_gross = monthly_gross * 12
+        std_ded = 75000
+        taxable_income = max(0, annual_gross - std_ded)
+        if taxable_income <= 700000:
+            return 0
+        slabs = [
+            (300000, 0.0),
+            (400000, 0.05),
+            (300000, 0.10),
+            (200000, 0.15),
+            (300000, 0.20),
+            (float("inf"), 0.30),
+        ]
+        rem = taxable_income
+        base_tax = 0.0
+        for cap, rate in slabs:
+            taxed = min(rem, cap)
+            base_tax += taxed * rate
+            rem -= taxed
+            if rem <= 0:
+                break
+        cess = base_tax * 0.04
+        return round((base_tax + cess) / 12)
+
+    def get_employee_salary_config(emp):
+        name_lower = (emp.employee_name or "").lower()
+        if "sushmita" in name_lower:
+            gross = 65000
+        elif "tarun" in name_lower:
+            gross = 80000
+        elif "tejas" in name_lower:
+            gross = 95000
+        else:
+            gross = 75000
+
+        basic = round(gross * 0.60)
+        special = gross - basic
+        tds = calculate_statutory_tds(gross)
+        pf = 1800 if gross >= 15000 else min(1800, round(basic * 0.12))  # EPFO Statutory Cap
+        pt = 200 if gross >= 15000 else 0   # Professional Tax
+        total_ded = pf + pt + tds
+        net_pay = gross - total_ded
+        return {
+            "basic": basic,
+            "specialAllowance": special,
+            "gross": gross,
+            "pf": pf,
+            "profTax": pt,
+            "incomeTax": tds,
+            "totalDeductions": total_ded,
+            "netPay": net_pay
         }
-    }
 
     months = [
         {"start_date": "2026-06-01", "end_date": "2026-06-30", "posting_date": "2026-07-04", "name_prefix": "2026-06"},
@@ -89,8 +120,7 @@ def run():
 
     count = 0
     for emp in employees:
-        desig = emp.designation or "Developer"
-        preset = presets.get(desig, presets["Developer"])
+        preset = get_employee_salary_config(emp)
 
         for m in months:
             slip = frappe.new_doc("Salary Slip")

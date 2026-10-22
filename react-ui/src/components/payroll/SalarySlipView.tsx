@@ -17,6 +17,7 @@ import { Employee } from '../../types';
 import { SalarySlip } from './types';
 import { PayslipModal } from './PayslipModal';
 import { downloadSalarySlipPDF } from '../../utils/salarySlipPdf';
+import { calculateStatutoryPayroll } from '../../utils/statutoryPayroll';
 interface SalarySlipViewProps {
   employees: Employee[];
 }
@@ -50,12 +51,13 @@ export const SalarySlipView: React.FC<SalarySlipViewProps> = ({ employees }) => 
         const mapped: SalarySlip[] = res.data.map((d: any): SalarySlip => {
           const gross = Number(d.gross_pay) || 75000;
           const isAnalyst = d.designation?.toLowerCase().includes('analyst') || d.employee === 'HR-EMP-00021' || d.employee_name?.toLowerCase().includes('sia');
-          const basic = isAnalyst ? 48000 : 45000;
-          const specialAllowance = isAnalyst ? 32000 : 30000;
-          const pf = 1800; // EPFO Statutory Cap
-          const profTax = 200;
-          const incomeTax = isAnalyst ? 3337 : 2817; // Sec 115BAC
-          const totalDeductions = Number(d.total_deduction) || (pf + profTax + incomeTax);
+          const stat = calculateStatutoryPayroll(gross);
+          const basic = stat.basic;
+          const specialAllowance = stat.specialAllowance;
+          const pf = stat.pf;
+          const profTax = stat.pt;
+          const incomeTax = stat.tds;
+          const totalDeductions = Number(d.total_deduction) || stat.totalDeductions;
           const netPay = Number(d.net_pay) || (gross - totalDeductions);
 
           const earnings = d.earnings && d.earnings.length > 0 ? d.earnings : [
@@ -140,14 +142,13 @@ export const SalarySlipView: React.FC<SalarySlipViewProps> = ({ employees }) => 
       net_pay: net,
       status: 'Submitted',
       earnings: [
-        { salary_component: 'Basic Salary', amount: Math.round(gross * 0.5) },
-        { salary_component: 'House Rent Allowance (HRA)', amount: Math.round(gross * 0.25) },
-        { salary_component: 'Special Allowance', amount: Math.round(gross * 0.25) },
+        { salary_component: 'Basic Salary', amount: calculateStatutoryPayroll(gross).basic },
+        { salary_component: 'Special Allowance', amount: calculateStatutoryPayroll(gross).specialAllowance },
       ],
       deductions: [
-        { salary_component: 'Provident Fund (PF)', amount: Math.round(ded * 0.7) },
-        { salary_component: 'Professional Tax (PT)', amount: 200 },
-        { salary_component: 'TDS (Tax)', amount: Math.max(0, Math.round(ded * 0.3) - 200) },
+        { salary_component: 'Provident Fund (PF)', amount: calculateStatutoryPayroll(gross).pf },
+        { salary_component: 'Professional Tax (PT)', amount: calculateStatutoryPayroll(gross).pt },
+        { salary_component: 'TDS (Income Tax - Sec 115BAC)', amount: calculateStatutoryPayroll(gross).tds },
       ],
     };
 
@@ -255,7 +256,7 @@ export const SalarySlipView: React.FC<SalarySlipViewProps> = ({ employees }) => 
             </span>
           </div>
           <p className="text-xs text-gray-500 mt-1">
-            Browse, preview, and generate greytHR-compliant monthly employee pay slips with automated statutory breakups.
+            Browse, preview, and generate statutory-compliant monthly employee pay slips with automated statutory breakups.
           </p>
         </div>
 

@@ -34,9 +34,11 @@ import { PayslipModal } from './PayslipModal';
 import { TaxBreakdownModal, TaxBreakdownEmployee } from './TaxBreakdownModal';
 import { SalarySlip } from './types';
 import { downloadSalarySlipPDF } from '../../utils/salarySlipPdf';
+import { calculateStatutoryPayroll } from '../../utils/statutoryPayroll';
 
 interface PayrollDashboardProps {
   employees: Employee[];
+  initialLopMap?: Record<string, number> | null;
   onNavigate: (subItem: string, docType?: string, reportName?: string) => void;
   onOpenWizard?: () => void;
   onOpenSimulator?: () => void;
@@ -52,7 +54,7 @@ interface MonthConfig {
   isNew?: boolean;
   workDays: number;
   scaleFactor: number; // for dynamic variation across months
-  releaseDate: string; // Official greytHR salary release date
+  releaseDate: string; // Official salary release date
   isProcessed: boolean; // Whether salary has been computed/released
   isCurrent?: boolean; // Current active calendar month
 }
@@ -63,7 +65,7 @@ const MONTHS: MonthConfig[] = [
   { id: 'jun-2026', shortLabel: 'Jun', year: '2026', fullTitle: 'June 2026', cutoff: '01 Jun 2026 to 30 Jun 2026', workDays: 30, scaleFactor: 1.0, releaseDate: '04 Jul 2026', isProcessed: true },
   { id: 'jul-2026', shortLabel: 'Jul', year: '2026', fullTitle: 'July 2026', cutoff: '01 Jul 2026 to 31 Jul 2026', workDays: 31, scaleFactor: 1.02, releaseDate: '04 Aug 2026', isProcessed: true },
   { id: 'aug-2026', shortLabel: 'Aug', year: '2026', fullTitle: 'August 2026', cutoff: '01 Aug 2026 to 31 Aug 2026', workDays: 31, scaleFactor: 1.01, releaseDate: '04 Sep 2026', isProcessed: true },
-  { id: 'sep-2026', shortLabel: 'Sep', year: '2026', fullTitle: 'September 2026', cutoff: '01 Sep 2026 to 30 Sep 2026', workDays: 30, scaleFactor: 1.03, releaseDate: '04 Oct 2026', isProcessed: true },
+  { id: 'sep-2026', shortLabel: 'Sep', year: '2026', fullTitle: 'September 2026', cutoff: '01 Sep 2026 to 30 Sep 2026', workDays: 30, scaleFactor: 1.0, releaseDate: '04 Oct 2026', isProcessed: true },
   // October 2026: Active current cycle - Release date is 04 Nov 2026. Cannot be processed prior to release date!
   { id: 'oct-2026', shortLabel: 'Oct', year: '2026', fullTitle: 'October 2026', cutoff: '01 Oct 2026 to 31 Oct 2026', workDays: 31, scaleFactor: 1.04, releaseDate: '04 Nov 2026', isProcessed: false, isCurrent: true, isNew: true },
   { id: 'nov-2026', shortLabel: 'Nov', year: '2026', fullTitle: 'November 2026', cutoff: '01 Nov 2026 to 30 Nov 2026', workDays: 30, scaleFactor: 1.02, releaseDate: '04 Dec 2026', isProcessed: false },
@@ -73,7 +75,7 @@ const MONTHS: MonthConfig[] = [
   { id: 'mar-2027', shortLabel: 'Mar', year: '2027', fullTitle: 'March 2027', cutoff: '01 Mar 2027 to 31 Mar 2027', workDays: 31, scaleFactor: 1.08, releaseDate: '04 Apr 2027', isProcessed: false },
 ];
 
-// Base Payroll Employee Dataset matching User's Screenshots (Image 1 & Image 2)
+// Base Payroll Employee Dataset
 interface PayrollRecord {
   empNo: string;
   name: string;
@@ -97,91 +99,28 @@ interface PayrollRecord {
   isFromDb?: boolean;
 }
 
+const createPresetRecord = (empNo: string, name: string, category: 'Management' | 'Technical', gross: number): PayrollRecord => {
+  const stat = calculateStatutoryPayroll(gross);
+  return {
+    empNo,
+    name,
+    category,
+    employmentStatus: 'Active',
+    basic: stat.basic,
+    specialAllowance: stat.specialAllowance,
+    gross: stat.monthlyGross,
+    pf: stat.pf,
+    incomeTax: stat.tds,
+    profTax: stat.pt,
+    totalDeductions: -stat.totalDeductions,
+    netPay: stat.netPay,
+  };
+};
+
 const REAL_EMPLOYEE_PRESETS: PayrollRecord[] = [
-  {
-    empNo: 'HR-EMP-00016',
-    name: 'Tejas Desai',
-    category: 'Technical',
-    employmentStatus: 'Active',
-    basic: 45000,
-    specialAllowance: 30000,
-    gross: 75000,
-    pf: 1800,
-    incomeTax: 2817,
-    profTax: 200,
-    totalDeductions: -4817,
-    netPay: 70183,
-  },
-  {
-    empNo: 'HR-EMP-00017',
-    name: 'Tarun Kumar',
-    category: 'Technical',
-    employmentStatus: 'Active',
-    basic: 45000,
-    specialAllowance: 30000,
-    gross: 75000,
-    pf: 1800,
-    incomeTax: 2817,
-    profTax: 200,
-    totalDeductions: -4817,
-    netPay: 70183,
-  },
-  {
-    empNo: 'HR-EMP-00018',
-    name: 'Bhagya Shree',
-    category: 'Technical',
-    employmentStatus: 'Active',
-    basic: 45000,
-    specialAllowance: 30000,
-    gross: 75000,
-    pf: 1800,
-    incomeTax: 2817,
-    profTax: 200,
-    totalDeductions: -4817,
-    netPay: 70183,
-  },
-  {
-    empNo: 'HR-EMP-00019',
-    name: 'Sushmita Kumari',
-    category: 'Technical',
-    employmentStatus: 'Active',
-    basic: 45000,
-    specialAllowance: 30000,
-    gross: 75000,
-    pf: 1800,
-    incomeTax: 2817,
-    profTax: 200,
-    totalDeductions: -4817,
-    netPay: 70183,
-  },
-  {
-    empNo: 'HR-EMP-00020',
-    name: 'Priya Kumari',
-    category: 'Technical',
-    employmentStatus: 'Active',
-    basic: 45000,
-    specialAllowance: 30000,
-    gross: 75000,
-    pf: 1800,
-    incomeTax: 2817,
-    profTax: 200,
-    totalDeductions: -4817,
-    netPay: 70183,
-  },
-  {
-    empNo: 'HR-EMP-00021',
-    name: 'Sia Kureel',
-    category: 'Operations',
-    employmentStatus: 'Active',
-    basic: 48000,
-    specialAllowance: 32000,
-    gross: 80000,
-    pf: 1800,
-    incomeTax: 3337,
-    profTax: 200,
-    totalDeductions: -5337,
-    netPay: 74663,
-  },
+  createPresetRecord('HR-EMP-00003', 'Sushmita Kumari', 'Management', 65000),
+  createPresetRecord('HR-EMP-00002', 'Tarun Kumar', 'Technical', 80000),
+  createPresetRecord('HR-EMP-00001', 'Tejas Desai', 'Technical', 95000),
 ];
 
 const MONTH_NUM_MAP: Record<string, string> = {
@@ -201,6 +140,7 @@ const MONTH_NUM_MAP: Record<string, string> = {
 
 export const PayrollDashboard: React.FC<PayrollDashboardProps> = ({
   employees = [],
+  initialLopMap,
   onNavigate,
   onOpenWizard,
   onOpenSimulator,
@@ -217,8 +157,8 @@ export const PayrollDashboard: React.FC<PayrollDashboardProps> = ({
   // Selected Company Scope: default to primary company
   const [selectedCompany, setSelectedCompany] = useState<string>('Nimble vision pvt ltd');
 
-  // Selected Month State (Defaults to June 2026 matching Screenshot 2)
-  const [selectedMonthId, setSelectedMonthId] = useState<string>('jun-2026');
+  // Selected Month State (Defaults to September 2026)
+  const [selectedMonthId, setSelectedMonthId] = useState<string>('sep-2026');
   
   // Cutoff & Editing
   const [customCutoff, setCustomCutoff] = useState<string>('');
@@ -248,28 +188,69 @@ export const PayrollDashboard: React.FC<PayrollDashboardProps> = ({
   const [isDeletingRecord, setIsDeletingRecord] = useState<boolean>(false);
   const [deletedEmpNos, setDeletedEmpNos] = useState<Record<string, string[]>>({});
 
-  const handleUpdateLop = (empNo: string, newLopDays: number) => {
+  // Sync initialLopMap when wizard completes
+  React.useEffect(() => {
+    if (initialLopMap && Object.keys(initialLopMap).length > 0) {
+      setEmployeeLopMap((prev) => ({ ...prev, ...initialLopMap }));
+      setSelectedMonthId('sep-2026');
+      fetchDbSlips();
+    }
+  }, [initialLopMap]);
+
+  const handleUpdateLop = async (empNo: string, newLopDays: number) => {
     setEmployeeLopMap((prev) => ({
       ...prev,
       [empNo]: newLopDays,
     }));
+
+    const rec = monthRecords.find((r) => r.empNo === empNo);
+    if (rec && rec.slipName) {
+      const paymentDays = Math.max(0, (rec.totalDays || 30) - newLopDays);
+      const ratio = (rec.totalDays || 30) > 0 ? paymentDays / (rec.totalDays || 30) : 1;
+      const baseGross = rec.baseGross || rec.gross;
+      const gross = Math.round(baseGross * ratio);
+      const stat = calculateStatutoryPayroll(gross);
+      const totalDed = stat.totalDeductions;
+      const netPay = stat.netPay;
+
+      try {
+        await frappeApi.updateDocRecord('Salary Slip', rec.slipName, {
+          leave_without_pay: newLopDays,
+          payment_days: paymentDays,
+          gross_pay: gross,
+          total_deduction: totalDed,
+          net_pay: netPay,
+          rounded_total: Math.round(netPay),
+        });
+        fetchDbSlips();
+      } catch (err) {
+        console.warn('Auto-save LOP to Frappe DB error:', err);
+      }
+    }
   };
 
   // Live Frappe DB State
   const [isDbSyncActive, setIsDbSyncActive] = useState<boolean>(true);
   const [dbSlips, setDbSlips] = useState<any[]>([]);
+  const [dbAssignments, setDbAssignments] = useState<any[]>([]);
   const [isFetchingDb, setIsFetchingDb] = useState<boolean>(false);
   const [dbConnected, setDbConnected] = useState<boolean>(false);
 
   const fetchDbSlips = async () => {
     setIsFetchingDb(true);
     try {
-      const res = await frappeApi.getDocTypeList('Salary Slip', 250);
-      if (res.data && res.data.length > 0) {
-        setDbSlips(res.data);
+      const [resSlips, resAssignments] = await Promise.all([
+        frappeApi.getDocTypeList('Salary Slip', 250),
+        frappeApi.getDocTypeList('Salary Structure Assignment', 100).catch(() => ({ data: [] }))
+      ]);
+      if (resSlips.data && resSlips.data.length > 0) {
+        setDbSlips(resSlips.data);
         setDbConnected(true);
       } else {
         setDbConnected(false);
+      }
+      if (resAssignments.data && resAssignments.data.length > 0) {
+        setDbAssignments(resAssignments.data);
       }
     } catch (err) {
       console.warn('Could not fetch live salary slips from Frappe API:', err);
@@ -359,7 +340,7 @@ export const PayrollDashboard: React.FC<PayrollDashboardProps> = ({
     }
   }, [selectedMonthId, currentMonth.isProcessed]);
 
-  // Dynamic base records mapped from real employees based on Company Scope
+  // Dynamic base records mapped from real employees based on Company Scope & CTC Assignments
   const baseEmployeeRecords = useMemo((): PayrollRecord[] => {
     let sourceEmployees = employees;
     if (selectedCompany !== 'All') {
@@ -373,44 +354,49 @@ export const PayrollDashboard: React.FC<PayrollDashboardProps> = ({
       return [];
     }
 
-    return sourceEmployees.map((emp): PayrollRecord => {
-      const match = REAL_EMPLOYEE_PRESETS.find(
+    return sourceEmployees.map((emp, idx): PayrollRecord => {
+      // 1. Look for live DB Salary Structure Assignment
+      const ssa = dbAssignments.find((a: any) =>
+        a.employee === emp.name ||
+        (a.employee_name && a.employee_name.toLowerCase() === (emp.employee_name || '').toLowerCase())
+      );
+
+      // 2. Look for matching preset
+      const preset = REAL_EMPLOYEE_PRESETS.find(
         (p) => p.empNo === emp.name || p.name.toLowerCase() === (emp.employee_name || '').toLowerCase()
       );
-      if (match) {
-        return {
-          ...match,
-          empNo: emp.name,
-          name: emp.employee_name || emp.name,
-          isExcluded: false,
-        };
+
+      let gross = ssa?.base ? Number(ssa.base) : (preset?.gross || 0);
+
+      // 3. Fallback matching the assignment rules if neither ssa nor preset is set
+      if (!gross) {
+        const nameLower = (emp.employee_name || '').toLowerCase();
+        if (nameLower.includes('sushmita')) gross = 65000;
+        else if (nameLower.includes('tarun')) gross = 80000;
+        else if (nameLower.includes('tejas')) gross = 95000;
+        else gross = 65000 + idx * 15000;
       }
-      const isAnalyst = emp.designation?.toLowerCase().includes('analyst');
-      const basic = isAnalyst ? 48000 : 45000;
-      const specialAllowance = isAnalyst ? 32000 : 30000;
-      const gross = basic + specialAllowance;
-      const pf = 1800; // EPFO Statutory Cap (12% of ₹15,000 wage ceiling)
-      const profTax = 200;
-      const incomeTax = isAnalyst ? 3337 : 2817;
-      const totalDeductions = -(pf + incomeTax + profTax);
-      const netPay = gross - (pf + incomeTax + profTax);
+
+      // 60% Basic, 40% Special Allowance, statutory PF, PT, and accurate Section 115BAC TDS
+      const stat = calculateStatutoryPayroll(gross);
+
       return {
         empNo: emp.name,
         name: emp.employee_name || emp.name,
-        category: isAnalyst ? 'Operations' : 'Technical',
+        category: (emp.department?.toLowerCase().includes('manage') ? 'Management' : 'Technical') as any,
         employmentStatus: 'Active',
         isExcluded: false,
-        basic,
-        specialAllowance,
-        gross,
-        pf,
-        incomeTax,
-        profTax,
-        totalDeductions,
-        netPay,
+        basic: stat.basic,
+        specialAllowance: stat.specialAllowance,
+        gross: stat.monthlyGross,
+        pf: stat.pf,
+        incomeTax: stat.tds,
+        profTax: stat.pt,
+        totalDeductions: -stat.totalDeductions,
+        netPay: stat.netPay,
       };
     });
-  }, [employees, selectedCompany]);
+  }, [employees, selectedCompany, dbAssignments]);
 
   // Scaled records for the selected month with LOP attendance adjustments & Live Frappe DB
   const monthRecords = useMemo((): PayrollRecord[] => {
@@ -443,13 +429,15 @@ export const PayrollDashboard: React.FC<PayrollDashboardProps> = ({
 
       let baseGross = Math.round(rec.gross * factor);
       let gross = Math.round(rec.gross * effectiveFactor);
-      let basic = Math.round(rec.basic * effectiveFactor);
-      let specialAllowance = Math.round(rec.specialAllowance * effectiveFactor);
-      let pf = rec.pf > 0 ? Math.round(rec.pf * effectiveFactor) : 0;
-      let incomeTax = rec.incomeTax > 0 ? Math.round(rec.incomeTax * effectiveFactor) : 0;
-      let profTax = gross >= 15000 ? rec.profTax : 0;
-      let totalDed = pf + incomeTax + profTax;
-      let netPay = gross - totalDed;
+      
+      const stat = calculateStatutoryPayroll(gross);
+      let basic = stat.basic;
+      let specialAllowance = stat.specialAllowance;
+      let pf = stat.pf;
+      let incomeTax = stat.tds;
+      let profTax = stat.pt;
+      let totalDed = stat.totalDeductions;
+      let netPay = stat.netPay;
       let lopDeductionAmount = baseGross - gross;
       let slipName = dbSlip?.name;
       let isFromDb = !!dbSlip;
@@ -457,7 +445,13 @@ export const PayrollDashboard: React.FC<PayrollDashboardProps> = ({
       // If DB slip exists and no manual LOP override was touched, use exact DB figures
       if (dbSlip && employeeLopMap[rec.empNo] === undefined) {
         gross = Number(dbSlip.gross_pay) || gross;
-        totalDed = Number(dbSlip.total_deduction) || totalDed;
+        const dbStat = calculateStatutoryPayroll(gross);
+        basic = dbStat.basic;
+        specialAllowance = dbStat.specialAllowance;
+        pf = dbStat.pf;
+        incomeTax = dbStat.tds;
+        profTax = dbStat.pt;
+        totalDed = Number(dbSlip.total_deduction) || dbStat.totalDeductions;
         netPay = Number(dbSlip.net_pay) || (gross - totalDed);
         baseGross = gross;
       }
@@ -1069,7 +1063,7 @@ export const PayrollDashboard: React.FC<PayrollDashboardProps> = ({
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-xs font-black uppercase tracking-wider text-amber-900 bg-amber-200/90 px-2.5 py-0.5 rounded-md">
-                        greytHR Cycle In Progress
+                        Payroll Cycle In Progress
                       </span>
                       <span className="text-xs font-bold text-amber-900 flex items-center gap-1.5 bg-white/80 px-2.5 py-0.5 rounded-md border border-amber-300">
                         <Calendar className="w-3.5 h-3.5 text-amber-700" />
@@ -1077,7 +1071,7 @@ export const PayrollDashboard: React.FC<PayrollDashboardProps> = ({
                       </span>
                     </div>
                     <p className="text-xs text-amber-900/90 mt-1.5 leading-relaxed">
-                      October 2026 salary is <strong>not processed</strong> because the official salary release date is the 4th ({currentMonth.releaseDate}). Daily biometric attendance swipes, loss of pay (LOP) deductions, and employee variable inputs are active until the 31 Oct cutoff. Final salary processing is restricted in accordance with greytHR standard compliance.
+                      October 2026 salary is <strong>not processed</strong> because the official salary release date is the 4th ({currentMonth.releaseDate}). Daily biometric attendance swipes, loss of pay (LOP) deductions, and employee variable inputs are active until the 31 Oct cutoff. Final salary processing is restricted in accordance with standard payroll compliance.
                     </p>
                   </div>
                 </div>
@@ -1089,7 +1083,7 @@ export const PayrollDashboard: React.FC<PayrollDashboardProps> = ({
                     className="px-3.5 py-1.5 rounded-xl bg-white border border-amber-300 text-amber-900 hover:bg-amber-100/60 text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
                   >
                     <Info className="w-3.5 h-3.5 text-amber-700" />
-                    <span>greytHR Rules</span>
+                    <span>Payroll Rules</span>
                   </button>
                 </div>
               </div>
@@ -1215,7 +1209,7 @@ export const PayrollDashboard: React.FC<PayrollDashboardProps> = ({
                 {/* greytHR Cycle Progress Tracker (For ongoing unprocessed month) */}
                 <div className="my-5 p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 space-y-2.5 text-xs font-sans">
                   <div className="flex items-center justify-between border-b border-slate-200/60 pb-2">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 font-sans">greytHR Cycle Milestones</span>
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 font-sans">Payroll Cycle Milestones</span>
                     <span className="text-[10px] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full font-sans">Phase 2 of 4</span>
                   </div>
                   <div className="space-y-2">
@@ -2070,7 +2064,7 @@ export const PayrollDashboard: React.FC<PayrollDashboardProps> = ({
                 </div>
                 <div>
                   <h3 className="font-bold text-sm tracking-tight text-white flex items-center gap-2">
-                    <span>greytHR Payroll Guard</span>
+                    <span>Payroll Policy Guard</span>
                     <span className="text-[10px] font-bold px-2 py-0.2 bg-amber-500/30 text-amber-300 rounded-full border border-amber-400/30">
                       Processing Restricted
                     </span>
@@ -2098,14 +2092,14 @@ export const PayrollDashboard: React.FC<PayrollDashboardProps> = ({
                   <span>Salary Processing Is Not Allowed Before Release Date (Day 4)</span>
                 </div>
                 <p className="text-xs text-amber-900 leading-relaxed pl-6">
-                  greytHR standard payroll compliance prohibits processing salary for <strong>{currentMonth.fullTitle}</strong> because the official salary release date is <strong>{currentMonth.releaseDate}</strong>.
+                  Standard payroll compliance prohibits processing salary for <strong>{currentMonth.fullTitle}</strong> because the official salary release date is <strong>{currentMonth.releaseDate}</strong>.
                 </p>
               </div>
 
               {/* Pre-Payroll Checklist */}
               <div>
                 <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-2.5">
-                  greytHR Pre-Processing Checklist Status:
+                  Pre-Processing Checklist Status:
                 </h4>
                 <div className="space-y-2 border border-slate-200 rounded-xl p-3 bg-slate-50/50">
                   {/* Checklist 1 */}
@@ -2186,7 +2180,7 @@ export const PayrollDashboard: React.FC<PayrollDashboardProps> = ({
               <div className="p-3 bg-blue-50/70 border border-blue-200 rounded-xl text-xs text-blue-900 flex items-start gap-2.5">
                 <Info className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
                 <p className="text-[11px] leading-relaxed">
-                  <strong>Why does greytHR enforce this?</strong> Finalizing salary during an ongoing cycle excludes remaining attendance days and causes irreversible tax recalculations.
+                  <strong>Why does payroll compliance enforce this?</strong> Finalizing salary during an ongoing cycle excludes remaining attendance days and causes irreversible tax recalculations.
                 </p>
               </div>
             </div>

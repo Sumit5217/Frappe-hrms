@@ -41,6 +41,7 @@ export const PayrollMasterView: React.FC<PayrollMasterViewProps> = ({
   onNavigate,
 }) => {
   const [isWizardOpen, setIsWizardOpen] = useState(false);
+  const [wizardLopSync, setWizardLopSync] = useState<Record<string, number> | null>(null);
 
   // Navigation tabs for quick hopping
   const navTabs = [
@@ -155,6 +156,7 @@ export const PayrollMasterView: React.FC<PayrollMasterViewProps> = ({
     return (
       <PayrollDashboard
         employees={employees}
+        initialLopMap={wizardLopSync}
         onNavigate={onNavigate}
         onOpenWizard={() => setIsWizardOpen(true)}
         onOpenSimulator={() => onNavigate('Tax Simulator')}
@@ -200,12 +202,18 @@ export const PayrollMasterView: React.FC<PayrollMasterViewProps> = ({
       {/* Main Payroll Content */}
       <div>{renderContent()}</div>
 
-      {/* greytHR-Style 5-Step Guided Payroll Run Wizard Modal */}
+      {/* 5-Step Guided Payroll Run Wizard Modal */}
       <PayrollWizardModal
         isOpen={isWizardOpen}
         onClose={() => setIsWizardOpen(false)}
         employees={employees}
-        onComplete={() => onNavigate('Salary Slip', 'Salary Slip')}
+        onComplete={(lopMap) => {
+          if (lopMap) {
+            setWizardLopSync({ ...lopMap });
+          }
+          setIsWizardOpen(false);
+          onNavigate('Dashboard');
+        }}
       />
     </div>
   );

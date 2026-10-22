@@ -17,6 +17,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { frappeApi } from '../api/frappe';
+import { calculateStatutoryPayroll } from '../utils/statutoryPayroll';
 
 interface ParsedEmployeeRow {
   id: string;
@@ -73,20 +74,17 @@ export const BulkEmployeeImportModal: React.FC<BulkEmployeeImportModalProps> = (
 
   if (!isOpen) return null;
 
-  // Strict Statutory Indian Payroll Calculation (PF, PT, TDS only)
+  // Strict Statutory Indian Payroll Calculation (PF, PT, TDS under Sec 115BAC)
   const calculateStatutory = (baseCtc: number) => {
-    const gross = Math.max(0, baseCtc);
-    const basic = Math.round(gross * 0.5);
-    const hra = Math.round(gross * 0.25);
-    // PF: 12% of basic capped at 1800/mo
-    const pf = Math.min(1800, Math.round(basic * 0.12));
-    // PT: 200/mo standard
-    const pt = gross > 15000 ? 200 : 0;
-    // TDS: Estimated monthly withholding (~5% of gross)
-    const tds = Math.round(gross * 0.05);
-    const takeHome = Math.max(0, gross - (pf + pt + tds));
-
-    return { basic, hra, pf, pt, tds, takeHome };
+    const stat = calculateStatutoryPayroll(baseCtc);
+    return {
+      basic: stat.basic,
+      hra: stat.specialAllowance,
+      pf: stat.pf,
+      pt: stat.pt,
+      tds: stat.tds,
+      takeHome: stat.netPay,
+    };
   };
 
   // Sample data generator for 1-click test
@@ -644,7 +642,7 @@ export const BulkEmployeeImportModal: React.FC<BulkEmployeeImportModalProps> = (
                         <th className="py-2.5 px-3 text-right">Base CTC</th>
                         <th className="py-2.5 px-3 text-right">PF (12%)</th>
                         <th className="py-2.5 px-3 text-right">PT</th>
-                        <th className="py-2.5 px-3 text-right">TDS (5%)</th>
+                        <th className="py-2.5 px-3 text-right">TDS (115BAC)</th>
                         <th className="py-2.5 px-3 text-right font-bold text-emerald-700">Net Take-Home</th>
                         <th className="py-2.5 px-3 text-center">Actions</th>
                       </tr>

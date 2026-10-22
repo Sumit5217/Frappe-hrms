@@ -5,6 +5,7 @@ import {
   CheckCircle2,
   Info,
 } from 'lucide-react';
+import { calculateNewRegimeTds } from '../../utils/statutoryPayroll';
 
 export interface TaxBreakdownEmployee {
   empNo: string;
@@ -41,78 +42,9 @@ export const TaxBreakdownModal: React.FC<TaxBreakdownModalProps> = ({
   const monthlyGross = employee.monthlyGross || 0;
   const annualGross = monthlyGross * 12;
 
-  // New Regime Calculation (FY 2025-27 / Section 115BAC)
+  // New Regime Calculation (FY 2025-27 / Section 115BAC) using unified statutory engine
   const newRegimeCalc = useMemo(() => {
-    const stdDed = 75000;
-    const taxableIncome = Math.max(0, annualGross - stdDed);
-
-    // Slab breakdowns
-    const slabs = [
-      { range: '₹0 to ₹3,00,000', rate: '0%', cap: 300000, taxedAmount: 0, tax: 0 },
-      { range: '₹3,00,001 to ₹7,00,000', rate: '5%', cap: 400000, taxedAmount: 0, tax: 0 },
-      { range: '₹7,00,001 to ₹10,00,000', rate: '10%', cap: 300000, taxedAmount: 0, tax: 0 },
-      { range: '₹10,00,001 to ₹12,00,000', rate: '15%', cap: 200000, taxedAmount: 0, tax: 0 },
-      { range: '₹12,00,001 to ₹15,00,000', rate: '20%', cap: 300000, taxedAmount: 0, tax: 0 },
-      { range: 'Above ₹15,00,000', rate: '30%', cap: Infinity, taxedAmount: 0, tax: 0 },
-    ];
-
-    let remaining = taxableIncome;
-
-    // 0 - 3L
-    const s1 = Math.min(remaining, 300000);
-    slabs[0].taxedAmount = s1;
-    remaining -= s1;
-
-    // 3L - 7L (4L)
-    const s2 = Math.min(remaining, 400000);
-    slabs[1].taxedAmount = s2;
-    slabs[1].tax = Math.round(s2 * 0.05);
-    remaining -= s2;
-
-    // 7L - 10L (3L)
-    const s3 = Math.min(remaining, 300000);
-    slabs[2].taxedAmount = s3;
-    slabs[2].tax = Math.round(s3 * 0.10);
-    remaining -= s3;
-
-    // 10L - 12L (2L)
-    const s4 = Math.min(remaining, 200000);
-    slabs[3].taxedAmount = s4;
-    slabs[3].tax = Math.round(s4 * 0.15);
-    remaining -= s4;
-
-    // 12L - 15L (3L)
-    const s5 = Math.min(remaining, 300000);
-    slabs[4].taxedAmount = s5;
-    slabs[4].tax = Math.round(s5 * 0.20);
-    remaining -= s5;
-
-    // > 15L
-    if (remaining > 0) {
-      slabs[5].taxedAmount = remaining;
-      slabs[5].tax = Math.round(remaining * 0.30);
-    }
-
-    let baseTax = slabs.reduce((sum, s) => sum + s.tax, 0);
-    const hasRebate = taxableIncome <= 700000;
-    if (hasRebate) {
-      baseTax = 0;
-    }
-
-    const cess = Math.round(baseTax * 0.04);
-    const totalTax = baseTax + cess;
-    const monthlyTds = Math.round(totalTax / 12);
-
-    return {
-      stdDed,
-      taxableIncome,
-      slabs,
-      baseTax,
-      hasRebate,
-      cess,
-      totalTax,
-      monthlyTds,
-    };
+    return calculateNewRegimeTds(annualGross);
   }, [annualGross]);
 
   // Old Regime Calculation

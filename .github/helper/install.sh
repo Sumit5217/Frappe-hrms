@@ -17,6 +17,17 @@ erpnextbranch=${ERPNEXT_BRANCH:-$githubbranch}
 paymentsbranch=${PAYMENTS_BRANCH:-${githubbranch%"-hotfix"}}
 lendingbranch="develop"
 
+# Fallback to develop if branch is main or master (upstream frappe uses develop)
+if [ "$frappebranch" = "main" ] || [ "$frappebranch" = "master" ]; then
+    frappebranch="develop"
+fi
+if [ "$erpnextbranch" = "main" ] || [ "$erpnextbranch" = "master" ]; then
+    erpnextbranch="develop"
+fi
+if [ "$paymentsbranch" = "main" ] || [ "$paymentsbranch" = "master" ]; then
+    paymentsbranch="develop"
+fi
+
 git clone "https://github.com/${frappeuser}/frappe" --branch "${frappebranch}" --depth 1
 bench init --skip-assets --frappe-path ~/frappe --python "$(which python)" frappe-bench
 

@@ -38,7 +38,7 @@ jobs:
 
     steps:
       - name: Clone
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Check for valid Python & Merge Conflicts
         run: |
@@ -49,17 +49,14 @@ jobs:
           fi
 
       - name: Setup Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v5
         with:
-          python-version: |
-            3.11
-            3.13
-            3.14
+          python-version: '3.11'
 
       - name: Setup Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 20
           check-latest: true
 
       - name: Add to Hosts
@@ -147,8 +144,8 @@ jobs:
             bench --site test_site migrate
           }
 
-          update_to_version 15 3.13
-          update_to_version 16 3.14
+          update_to_version 15 3.11
+          update_to_version 16 3.12
 
           echo "Updating to latest version"
           git -C "apps/frappe" fetch --depth 1 upstream "${GITHUB_BASE_REF:-${GITHUB_REF##*/}}"

@@ -10,10 +10,13 @@ fi
 
 echo "Creating new bench..."
 rm -rf /home/frappe/frappe-bench
+printf "[client]\nssl=0\n" > /home/frappe/.my.cnf
+yarn cache clean
+yarn config set registry https://registry.npmjs.org/
 
 export PATH="${NVM_DIR}/versions/node/v${NODE_VERSION:-$NODE_VERSION_PREV}/bin/:${PATH}"
 
-bench init --python /home/frappe/.pyenv/versions/3.14.2/bin/python3.14 --skip-redis-config-generation frappe-bench
+bench init --python python3 --skip-redis-config-generation frappe-bench
 
 cd frappe-bench
 
