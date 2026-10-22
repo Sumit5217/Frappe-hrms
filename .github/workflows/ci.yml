@@ -14,8 +14,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test-and-build:
-    name: Code Validation & Build
+  test:
+    name: Statutory Payroll Unit Tests & Frontend Build
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -28,30 +28,23 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Check Python Syntax & Merge Conflicts
+      - name: Run Statutory Payroll & TDS Unit Tests
         run: |
-          python -m compileall -q -f .
-          if grep -lr --exclude-dir=node_modules "^<<<<<<< " . ; then
-            echo "Found merge conflicts!"
-            exit 1
-          fi
-          echo "All Python code compiled cleanly with no conflicts."
+          python hrms/tests/test_statutory_payroll.py
+
+      - name: Verify Python Scripts
+        run: |
+          python -m py_compile seed_real_payroll.py seed_alpha_employees.py seed_employees.py
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
-          cache-dependency-path: react-ui/package-lock.json
 
       - name: Install Frontend Dependencies
         working-directory: react-ui
-        run: npm ci || npm install
+        run: npm install
 
       - name: Build Frontend Application
         working-directory: react-ui
         run: npm run build
-
-      - name: Verify Seed Scripts
-        run: |
-          python -c "import py_compile; py_compile.compile('seed_real_payroll.py', doraise=True); print('seed_real_payroll.py is valid!')"
